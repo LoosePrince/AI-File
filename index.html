@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI文件整理助手 - 智能文件管理工具</title>
+    <style>
+        :root {
+            --primary-color: #00c853;
+            --bg-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --text-gray: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式导航栏 */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 2rem;
+                background: var(--bg-dark);
+                padding: 1rem;
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .pricing {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .pricing-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            margin: 0.5rem 0;
+            color: var(--text-gray);
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #00a844;
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .or-text {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .download-buttons {
+                flex-direction: row;
+                justify-content: center;
+                gap: 1.5rem;
+            }
+        }
+
+        .footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <span>AI文件整理助手</span>
+        </a>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="#features">功能</a>
+            <a href="docs.html">文档</a>
+            <a href="#download">下载</a>
+        </nav>
+    </header>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.querySelector('.nav-links');
+            nav.classList.toggle('active');
+        }
+    </script>
+
+    <section class="hero">
+        <h1>一键告别文件杂乱</h1>
+        <p>使用AI技术智能识别文件内容，自动整理归类，让您的文件管理更轻松、更高效</p>
+        <a href="docs.html" class="btn">立即开始</a>
+        <a href="#download" class="btn">下载软件</a>
+    </section>
+
+    <section class="features" id="features">
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>AI智能识别</h3>
+                <p>使用先进的AI技术分析文件内容，支持图片、视频、文档等多种文件类型的智能识别</p>
+            </div>
+            <div class="feature-card">
+                <h3>智能重命名（开发中）</h3>
+                <p>即将推出：AI智能识别文件内容，自动生成合适的文件名，支持批量重命名和自定义命名规则</p>
+            </div>
+            <div class="feature-card">
+                <h3>灵活设置</h3>
+                <p>支持API配置、语言设置、文件操作模式选择，完全适应您的个性化需求</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="download">
+        <h2>下载软件</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>主要功能</h3>
+                <ul class="feature-list">
+                    <li>AI智能识别文件内容</li>
+                    <li>自动分类整理文件</li>
+                    <li>支持图像压缩</li>
+                    <li>支持视频分析</li>
+                    <li>支持压缩包分析</li>
+                    <li>文件复制/移动模式</li>
+                    <li>中英文文件命名切换</li>
+                </ul>
+                <h3>免费下载</h3>
+                <!-- <p style="color: var(--text-gray); margin: 1rem 0;">本软件完全免费，请加入QQ群：726741344下载最新版本</p> -->
+                <div class="download-buttons">
+                    <a href="dist/AI文件整理助手.exe" class="btn">直接下载</a>
+                    <span class="or-text">或</span>
+                    <a href="https://github.com/LoosePrince/AI-File/releases/latest" class="btn">从GitHub下载</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2025 树梢（LoosePrince）. 保留所有权利。</p>
+    </footer>
+</body>
+</html>
