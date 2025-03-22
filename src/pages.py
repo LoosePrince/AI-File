@@ -138,38 +138,58 @@ class RenameWorker(QThread):
     def generate_new_filename(self, analysis_result, old_name):
         """根据分析结果生成新的文件名"""
         try:
-            # 调用 API 生成新文件名
-            response = openai.ChatCompletion.create(
-                model=self.file_organizer.decision_model,
-                messages=[
-                    {"role": "user", "content": f"""请根据以下文件信息生成一个合适的文件名。文件名要简洁明了，能反映文件内容。不需要包含文件扩展名，我将自动添加原始文件的扩展名。文件名要符合操作系统命名规范（不能包含特殊字符）。
+            # 获取当前 API 类型
+            config = configparser.ConfigParser()
+            config.read('config.ini', encoding='utf-8')
+            api_type = config.get('API', 'api_type', fallback='OpenAI API')
+            
+            # 构建提示词
+            prompt = f"""请根据以下文件信息生成一个合适的文件名。文件名要简洁明了，能反映文件内容。不需要包含文件扩展名，我将自动添加原始文件的扩展名。文件名要符合操作系统命名规范（不能包含特殊字符）。
 文件信息：
 {json.dumps(analysis_result, ensure_ascii=False, indent=2)}
 
 原文件名：{old_name}，新文件名使用{self.language}命名
-"""
-                    },{
-                        "role": "user",
-                        "content": """
+
 请严格按照以下JSON格式输出（注意：不要输出多余的内容，只输出json，不要使用代码块包裹）：
-{
+{{
     "new_name": "新文件名（不要包含扩展名）",
     "reason": "重命名原因"
-}"""
-                    },
-                ]
-            )
+}}"""
             
-            # 获取生成的结果
-            result_text = response.choices[0].message.content.strip()
-            if result_text.startswith("```json") and result_text.endswith("```"):
-                result_text = result_text[7:-3].strip()
+            if api_type == "Ollama API":
+                # 调用 Ollama API
+                import requests
+                response = requests.post(
+                    f"{self.file_organizer.api_base}/api/generate",
+                    json={
+                        "model": self.file_organizer.decision_model,
+                        "prompt": prompt,
+                        "stream": False
+                    }
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    result_text = result.get('response', '').strip()
+                else:
+                    raise Exception(f"Ollama API 调用失败: {response.text}")
+            else:
+                # 使用 OpenAI API
+                response = openai.ChatCompletion.create(
+                    model=self.file_organizer.decision_model,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                result_text = response.choices[0].message.content.strip()
             
             # 记录 AI 返回的结果
             self.file_organizer.logger.log_info(f"AI 返回结果：{result_text}")
             
             try:
                 # 尝试解析 JSON
+                if result_text.startswith("```json") and result_text.endswith("```"):
+                    result_text = result_text[7:-3].strip()
                 result = json.loads(result_text)
                 new_name = result.get('new_name', '')
                 reason = result.get('reason', '')
