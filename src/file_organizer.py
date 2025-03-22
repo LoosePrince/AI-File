@@ -58,29 +58,20 @@ class MessageType:
 
 class FileOrganizer:
     def __init__(self, api_key, output_dir=None):
-        self.logger = Logger()  # 实例化日志类
         self.api_key = api_key
         self.output_dir = output_dir
-        self.history_file = "file_history.json"
-        self.history = self._load_history()
-        self.analysis_cache_file = "file_analysis_cache.json"
-        self.analysis_cache = self._load_analysis_cache()
-        self.decision_cache_file = "file_decision_cache.json"
-        self.decision_cache = self._load_decision_cache()
+        self.cancel_flag = False
         self.progress_callback = None
-        self.max_retries = 3
-        self.retry_delay = 2
-        self.cache_lock = Lock()
         self.progress_lock = Lock()
-        self.cancel_flag = False  # 添加取消标志
-        
-        # 加载配置
+        self.analysis_cache = {}
+        self.decision_cache = {}
+        self.logger = Logger()
         self.load_config()
 
     def load_config(self):
         """加载或更新配置"""
         try:
-            from config import API_KEY, API_URL, FILE_OPERATION, IMAGE_MODEL, FILE_MODEL, DECISION_MODEL, ENABLE_VIDEO_ANALYSIS, VIDEO_MODEL, LANGUAGE, SUBFOLDER_MODE
+            from config import API_KEY, API_URL, API_TYPE, FILE_OPERATION, IMAGE_MODEL, FILE_MODEL, DECISION_MODEL, ENABLE_VIDEO_ANALYSIS, VIDEO_MODEL, LANGUAGE, SUBFOLDER_MODE
             
             self.logger.log_info("配置文件加载成功")
             
@@ -97,6 +88,8 @@ class FileOrganizer:
             self.language = LANGUAGE
             # 获取子文件夹处理模式
             self.subfolder_mode = SUBFOLDER_MODE
+            # 获取API类型
+            self.api_type = API_TYPE
             
             # 更新openai设置
             openai.api_key = API_KEY
@@ -113,6 +106,7 @@ class FileOrganizer:
             self.video_model = 'Pro/Qwen/Qwen2-VL-7B-Instruct'
             self.language = '中文'
             self.subfolder_mode = 'whole'  # 默认整体处理
+            self.api_type = 'OpenAI API'  # 默认使用 OpenAI API
 
     def set_progress_callback(self, callback):
         self.progress_callback = callback
@@ -317,35 +311,67 @@ class FileOrganizer:
             
         return dir_structure
 
-    def _call_api_with_retry(self, func, *args, **kwargs):
-        for attempt in range(self.max_retries):
+    def _call_api_with_retry(self, api_func, **kwargs):
+        """带重试机制的API调用"""
+        max_retries = 3
+        retry_count = 0
+        last_error = None
+        
+        while retry_count < max_retries:
             try:
-                # 检查取消标志
-                if self.cancel_flag:
-                    if self.progress_callback:
-                        self.progress_callback("API调用已取消")
-                    raise Exception("操作已取消")
-                
-                return func(*args, **kwargs)
-            except (requests.exceptions.RequestException, RemoteDisconnected, ProtocolError) as e:
-                if self.cancel_flag:  # 检查取消标志
-                    if self.progress_callback:
-                        self.progress_callback("API调用已取消")
-                    raise Exception("操作已取消")
-                
-                if attempt == self.max_retries - 1:
-                    raise Exception(f"与API通信失败，请检查网络连接或稍后重试。错误信息：{str(e)}")
-                if self.progress_callback:
-                    self.progress_callback(f"连接失败，{self.retry_delay}秒后重试...")
-                time.sleep(self.retry_delay)
-                continue
+                if self.api_type == "Ollama API":
+                    # 修改消息格式以适应 Ollama API
+                    if "messages" in kwargs:
+                        messages = kwargs["messages"]
+                        # 将消息转换为 Ollama 格式
+                        prompt = ""
+                        for msg in messages:
+                            if msg["role"] == "system":
+                                prompt += f"System: {msg['content']}\n"
+                            elif msg["role"] == "user":
+                                prompt += f"User: {msg['content']}\n"
+                            elif msg["role"] == "assistant":
+                                prompt += f"Assistant: {msg['content']}\n"
+                        
+                        # 调用 Ollama API
+                        import requests
+                        response = requests.post(
+                            f"{openai.api_base}/api/generate",
+                            json={
+                                "model": kwargs.get("model", "llama2"),
+                                "prompt": prompt,
+                                "stream": False
+                            }
+                        )
+                        
+                        if response.status_code == 200:
+                            result = response.json()
+                            # 构造类似 OpenAI 的响应格式
+                            return type('Response', (), {
+                                'choices': [
+                                    type('Choice', (), {
+                                        'message': type('Message', (), {
+                                            'content': result.get('response', '')
+                                        })
+                                    })
+                                ]
+                            })
+                        else:
+                            raise Exception(f"Ollama API 调用失败: {response.text}")
+                    else:
+                        raise Exception("Ollama API 不支持当前调用方式")
+                else:
+                    # 使用 OpenAI API
+                    return api_func(**kwargs)
+                    
             except Exception as e:
-                if self.cancel_flag:  # 检查取消标志
-                    if self.progress_callback:
-                        self.progress_callback("API调用已取消")
-                    raise Exception("操作已取消")
+                last_error = e
+                retry_count += 1
+                if retry_count < max_retries:
+                    time.sleep(1)  # 等待1秒后重试
+                continue
                 
-                raise Exception(f"分析过程出现错误：{str(e)}")
+        raise last_error or Exception("API调用失败")
 
     def _compress_image(self, img, quality=50):
         """压缩图像"""

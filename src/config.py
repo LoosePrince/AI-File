@@ -38,26 +38,30 @@ def load_config():
     # 读取配置文件
     config.read(CONFIG_FILE, encoding='utf-8')
     
-    # 获取API设置
-    API_KEY = config.get('API', 'API_KEY', fallback='sk_test_1234567890')
-    API_URL = config.get('API', 'API_URL', fallback='https://api.siliconflow.cn/v1')
+    # API设置
+    API_TYPE = config.get('API', 'api_type', fallback='OpenAI API')
+    API_KEY = config.get('API', 'api_key', fallback='')
+    API_URL = config.get('API', 'api_url', fallback='')
     
-    # 获取文件操作设置
-    FILE_OPERATION = config.get('Settings', 'file_operation', fallback='copy')
-    IMAGE_MODEL = config.get('Settings', 'image_analysis_model', 
-                           fallback='Pro/Qwen/Qwen2-VL-7B-Instruct')
-    FILE_MODEL = config.get('Settings', 'file_analysis_model',
-                          fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
-    DECISION_MODEL = config.get('Settings', 'decision_model',
-                              fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-32B')
-    ENABLE_VIDEO_ANALYSIS = config.getboolean('Settings', 'enable_video_analysis', fallback=False)
-    VIDEO_MODEL = config.get('Settings', 'video_analysis_model',
-                           fallback='Pro/Qwen/Qwen2-VL-7B-Instruct')
+    # 基本设置
     LANGUAGE = config.get('Settings', 'language', fallback='中文')
-    SUBFOLDER_MODE = config.get('Settings', 'subfolder_mode', fallback='whole')  # 默认整体处理
-    THREAD_COUNT = config.getint('Settings', 'thread_count', fallback=8)  # 添加线程数设置
+    FILE_OPERATION = config.get('Settings', 'file_operation', fallback='copy')
+    SUBFOLDER_MODE = config.get('Settings', 'subfolder_mode', fallback='whole')
+    
+    # 模型设置
+    IMAGE_MODEL = config.get('Settings', 'image_analysis_model', fallback='Pro/Qwen/Qwen2-VL-7B-Instruct')
+    FILE_MODEL = config.get('Settings', 'file_analysis_model', fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
+    DECISION_MODEL = config.get('Settings', 'decision_model', fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-32B')
+    
+    # 视频分析设置
+    ENABLE_VIDEO_ANALYSIS = config.getboolean('Settings', 'enable_video_analysis', fallback=False)
+    VIDEO_MODEL = config.get('Settings', 'video_analysis_model', fallback='Pro/Qwen/Qwen2-VL-7B-Instruct')
+    
+    # 性能设置
+    THREAD_COUNT = config.getint('Settings', 'thread_count', fallback=8)
     
     return {
+        'API_TYPE': API_TYPE,
         'API_KEY': API_KEY,
         'API_URL': API_URL,
         'FILE_OPERATION': FILE_OPERATION,
@@ -75,6 +79,7 @@ def load_config():
 config_dict = load_config()
 
 # 导出配置变量
+API_TYPE = config_dict['API_TYPE']
 API_KEY = config_dict['API_KEY']
 API_URL = config_dict['API_URL']
 FILE_OPERATION = config_dict['FILE_OPERATION']

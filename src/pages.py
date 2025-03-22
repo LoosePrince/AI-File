@@ -961,6 +961,36 @@ class SettingsPage(BasePage):
         api_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(api_section)
         
+        # API类型选择
+        self.api_type = QComboBox()
+        self.api_type.setFont(QFont("Microsoft YaHei UI", 9))
+        self.api_type.setStyleSheet("""
+            QComboBox {
+                background-color: #333333;
+                color: #ffffff;
+                border: 1px solid #444444;
+                border-radius: 4px;
+                padding: 8px;
+            }
+            QComboBox:hover {
+                border: 1px solid #4CAF50;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox::down-arrow {
+                image: url(down_arrow.png);
+                width: 12px;
+                height: 12px;
+            }
+        """)
+        self.api_type.addItems(["OpenAI API", "Ollama API"])
+        current_api_type = self.config.get('API', 'api_type', fallback='OpenAI API')
+        index = self.api_type.findText(current_api_type)
+        if index >= 0:
+            self.api_type.setCurrentIndex(index)
+        form_layout.addRow(QLabel("API类型:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_type)
+        
         # API URL
         self.api_url = QLineEdit()
         self.api_url.setFont(QFont("Microsoft YaHei UI", 9))
@@ -986,6 +1016,11 @@ class SettingsPage(BasePage):
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setText(self.config.get('API', 'api_key', fallback=''))
         form_layout.addRow(QLabel("API Key:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_key)
+        
+        # 连接API类型变化信号
+        self.api_type.currentTextChanged.connect(self.on_api_type_changed)
+        # 初始化API Key输入框状态
+        self.on_api_type_changed(self.api_type.currentText())
         
         # 基本设置
         basic_section = QLabel("基本设置")
@@ -1210,6 +1245,16 @@ class SettingsPage(BasePage):
         except Exception as e:
             print(f"加载子文件夹处理方式设置失败: {str(e)}")
             
+    def on_api_type_changed(self, api_type):
+        """处理API类型变化"""
+        if api_type == "Ollama API":
+            self.api_key.setEnabled(False)
+            self.api_key.clear()
+            self.api_key.setPlaceholderText("Ollama API不需要密钥")
+        else:
+            self.api_key.setEnabled(True)
+            self.api_key.setPlaceholderText("")
+            
     def save_settings(self):
         """保存设置到配置文件"""
         try:
@@ -1219,6 +1264,7 @@ class SettingsPage(BasePage):
             if not self.config.has_section('Settings'):
                 self.config.add_section('Settings')
                 
+            self.config.set('API', 'api_type', self.api_type.currentText())
             self.config.set('API', 'api_url', self.api_url.text())
             self.config.set('API', 'api_key', self.api_key.text())
             self.config.set('Settings', 'language', self.language.currentText())
