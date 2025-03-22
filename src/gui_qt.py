@@ -281,9 +281,74 @@ class FileOrganizerGUI(QMainWindow):
         self.logger = Logger()  # 实例化日志类
         self.setWindowTitle("文脉通 (DocStream Navigator)")
         self.setGeometry(100, 100, 1200, 800)
+        
+        # 设置无边框窗口
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        
+        # 创建自定义标题栏
+        self.title_bar = QWidget(self)
+        self.title_bar.setFixedHeight(40)
+        self.title_bar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+        """)
+        
+        # 创建标题栏布局
+        title_bar_layout = QHBoxLayout(self.title_bar)
+        title_bar_layout.setContentsMargins(10, 0, 10, 0)
+        title_bar_layout.setSpacing(10)
+        
+        # 添加标题
+        title_label = QLabel("文脉通")
+        title_label.setStyleSheet("color: #4CAF50; font-size: 14px; font-weight: bold;")
+        title_bar_layout.addWidget(title_label)
+        
+        # 添加弹性空间
+        title_bar_layout.addStretch()
+        
+        # 添加最小化和关闭按钮
+        self.minimize_btn = QPushButton("─")
+        self.minimize_btn.setFixedSize(30, 30)
+        self.minimize_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #ffffff;
+                border: none;
+                border-radius: 15px;
+            }
+            QPushButton:hover {
+                background-color: #333333;
+            }
+        """)
+        self.minimize_btn.clicked.connect(self.showMinimized)
+        
+        self.close_btn = QPushButton("×")
+        self.close_btn.setFixedSize(30, 30)
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #ffffff;
+                border: none;
+                border-radius: 15px;
+            }
+            QPushButton:hover {
+                background-color: #e81123;
+            }
+        """)
+        self.close_btn.clicked.connect(self.close)
+        
+        title_bar_layout.addWidget(self.minimize_btn)
+        title_bar_layout.addWidget(self.close_btn)
+        
+        # 设置主窗口样式
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #1e1e1e;
+                border-radius: 10px;
             }
             QLabel {
                 color: #ffffff;
@@ -407,13 +472,57 @@ class FileOrganizerGUI(QMainWindow):
         self.init_ui()
         self.check_restore_cache()  # 检查是否有可还原的缓存
         
+        # 设置窗口阴影
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        
+        # 添加鼠标事件处理
+        self.title_bar.mousePressEvent = self.mousePressEvent
+        self.title_bar.mouseMoveEvent = self.mouseMoveEvent
+        self.title_bar.mouseReleaseEvent = self.mouseReleaseEvent
+        
+        self.dragging = False
+        self.offset = None
+        
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.offset = event.pos()
+            
+    def mouseMoveEvent(self, event):
+        if self.dragging:
+            self.move(self.mapToGlobal(event.pos() - self.offset))
+            
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+            self.offset = None
+        
     def init_ui(self):
         # 创建主窗口部件
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         
         # 创建主布局
-        main_layout = QHBoxLayout(main_widget)
+        main_layout = QVBoxLayout(main_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # 添加标题栏
+        main_layout.addWidget(self.title_bar)
+        
+        # 创建内容区域
+        content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+        """)
+        content_layout = QHBoxLayout(content_widget)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
         
         # 创建侧边栏
         sidebar = QFrame()
@@ -421,6 +530,7 @@ class FileOrganizerGUI(QMainWindow):
         sidebar.setStyleSheet("""
             background-color: #121212;
             border-right: 1px solid #333333;
+            border-bottom-left-radius: 10px;
         """)
         sidebar_layout = QVBoxLayout(sidebar)
         
@@ -456,6 +566,12 @@ class FileOrganizerGUI(QMainWindow):
         
         # 创建堆叠式页面容器
         self.page_container = QStackedWidget()
+        self.page_container.setStyleSheet("""
+            QStackedWidget {
+                background-color: #1e1e1e;
+                border-bottom-right-radius: 10px;
+            }
+        """)
         
         # 创建并添加各个页面
         self.file_manage_page = QWidget()  # 原有的文件整理页面
@@ -471,9 +587,12 @@ class FileOrganizerGUI(QMainWindow):
         self.about_page = AboutPage()
         self.page_container.addWidget(self.about_page)
         
-        # 将侧边栏和页面容器添加到主布局
-        main_layout.addWidget(sidebar)
-        main_layout.addWidget(self.page_container)
+        # 将侧边栏和页面容器添加到内容布局
+        content_layout.addWidget(sidebar)
+        content_layout.addWidget(self.page_container)
+        
+        # 将内容区域添加到主布局
+        main_layout.addWidget(content_widget)
         
         # 设置初始页面
         self.show_page("file_manage")

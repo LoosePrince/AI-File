@@ -958,7 +958,7 @@ class SettingsPage(BasePage):
         # API设置
         api_section = QLabel("API设置")
         api_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        api_section.setStyleSheet("color: #ffffff;")
+        api_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(api_section)
         
         # API URL
@@ -977,7 +977,7 @@ class SettingsPage(BasePage):
             }
         """)
         self.api_url.setText(self.config.get('API', 'api_url', fallback=''))
-        form_layout.addRow(QLabel("API URL:", font=QFont("Microsoft YaHei UI", 9)), self.api_url)
+        form_layout.addRow(QLabel("API URL:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_url)
         
         # API Key
         self.api_key = QLineEdit()
@@ -985,12 +985,12 @@ class SettingsPage(BasePage):
         self.api_key.setStyleSheet(self.api_url.styleSheet())
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setText(self.config.get('API', 'api_key', fallback=''))
-        form_layout.addRow(QLabel("API Key:", font=QFont("Microsoft YaHei UI", 9)), self.api_key)
+        form_layout.addRow(QLabel("API Key:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_key)
         
         # 基本设置
         basic_section = QLabel("基本设置")
         basic_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        basic_section.setStyleSheet("color: #ffffff;")
+        basic_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(basic_section)
         
         # 文件分类语言
@@ -1021,7 +1021,7 @@ class SettingsPage(BasePage):
         index = self.language.findText(current_lang)
         if index >= 0:
             self.language.setCurrentIndex(index)
-        form_layout.addRow(QLabel("文件分类语言:", font=QFont("Microsoft YaHei UI", 9)), self.language)
+        form_layout.addRow(QLabel("文件分类语言:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.language)
         
         # 文件操作模式
         self.file_operation = QComboBox()
@@ -1030,12 +1030,12 @@ class SettingsPage(BasePage):
         self.file_operation.addItems(["复制", "移动"])
         current_op = self.config.get('Settings', 'file_operation', fallback='copy')
         self.file_operation.setCurrentIndex(0 if current_op == 'copy' else 1)
-        form_layout.addRow(QLabel("文件操作模式:", font=QFont("Microsoft YaHei UI", 9)), self.file_operation)
+        form_layout.addRow(QLabel("文件操作模式:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.file_operation)
         
         # 子文件夹处理方式
         subfolder_section = QLabel("子文件夹处理设置")
         subfolder_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        subfolder_section.setStyleSheet("color: #ffffff;")
+        subfolder_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(subfolder_section)
         
         self.subfolder_mode = QComboBox()
@@ -1054,31 +1054,14 @@ class SettingsPage(BasePage):
         self.subfolder_description = QLabel()
         self.subfolder_description.setWordWrap(True)
         self.subfolder_description.setFont(QFont("Microsoft YaHei UI", 9))
-        self.subfolder_description.setStyleSheet("color: #aaaaaa; font-size: 9pt;")
-        
-        # 根据选择更新描述
-        def update_subfolder_description(index):
-            descriptions = [
-                "将子文件夹视为一个整体进行分类，不改动内部文件结构，保持文件夹的完整性。",
-                "将文件夹中所有文件视为独立文件，单独分析处理，完全忽略文件夹结构。",
-                "智能分析文件夹内容，识别文件夹的主要用途，同时提取可能与文件夹主题不符的文件单独处理。"
-            ]
-            self.subfolder_description.setText(descriptions[index])
-        
-        # 连接选择变化信号
-        self.subfolder_mode.currentIndexChanged.connect(update_subfolder_description)
-        # 初始化描述
-        update_subfolder_description(self.subfolder_mode.currentIndex())
-        
-        subfolder_layout = QVBoxLayout()
-        subfolder_layout.addWidget(self.subfolder_mode)
-        subfolder_layout.addWidget(self.subfolder_description)
-        form_layout.addRow(QLabel("子文件夹处理方式:", font=QFont("Microsoft YaHei UI", 9)), subfolder_layout)
+        self.subfolder_description.setStyleSheet("color: #aaaaaa; border: none; background: transparent;")
+        form_layout.addRow(QLabel("处理方式:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.subfolder_mode)
+        form_layout.addRow("", self.subfolder_description)
         
         # 性能设置
         performance_section = QLabel("性能设置")
         performance_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        performance_section.setStyleSheet("color: #ffffff;")
+        performance_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(performance_section)
         
         # 线程数设置
@@ -1087,6 +1070,7 @@ class SettingsPage(BasePage):
         self.thread_count.setMinimum(1)
         self.thread_count.setMaximum(32)
         self.thread_count.setValue(self.config.getint('Settings', 'thread_count', fallback=8))
+        
         self.thread_count.setStyleSheet("""
             QSlider {
                 background: transparent;
@@ -1110,17 +1094,17 @@ class SettingsPage(BasePage):
         """)
         
         self.thread_count_label = QLabel(str(self.thread_count.value()))
-        self.thread_count_label.setStyleSheet("color: #ffffff;")
+        self.thread_count_label.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         self.thread_count.valueChanged.connect(lambda v: self.thread_count_label.setText(str(v)))
         
         thread_layout.addWidget(self.thread_count)
         thread_layout.addWidget(self.thread_count_label)
-        form_layout.addRow(QLabel("线程数:", font=QFont("Microsoft YaHei UI", 9)), thread_layout)
+        form_layout.addRow(QLabel("线程数:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), thread_layout)
         
         # 视频分析设置
         video_section = QLabel("视频分析设置")
         video_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        video_section.setStyleSheet("color: #ffffff;")
+        video_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(video_section)
         
         # 是否启用视频分析
@@ -1130,19 +1114,18 @@ class SettingsPage(BasePage):
         self.enable_video.addItems(["否", "是"])
         current_video_enabled = self.config.getboolean('Settings', 'enable_video_analysis', fallback=False)
         self.enable_video.setCurrentIndex(1 if current_video_enabled else 0)
+        form_layout.addRow(QLabel("启用视频分析:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.enable_video)
         
+        # 视频分析警告
         video_warning = QLabel("注意：视频分析会消耗大量API资源，可能会导致高额费用！")
-        video_warning.setStyleSheet("color: #FFA500; font-size: 9pt;")
-        
-        video_layout = QVBoxLayout()
-        video_layout.addWidget(self.enable_video)
-        video_layout.addWidget(video_warning)
-        form_layout.addRow(QLabel("启用视频分析:", font=QFont("Microsoft YaHei UI", 9)), video_layout)
+        video_warning.setStyleSheet("color: #ff6b6b; border: none; background: transparent;")
+        video_warning.setFont(QFont("Microsoft YaHei UI", 9))
+        form_layout.addRow("", video_warning)
 
         # 模型设置
         model_section = QLabel("模型设置")
         model_section.setFont(QFont("Microsoft YaHei UI", 14, QFont.Bold))
-        model_section.setStyleSheet("color: #ffffff;")
+        model_section.setStyleSheet("color: #ffffff; border: none; background: transparent;")
         form_layout.addRow(model_section)
         
         # 图像分析模型
@@ -1151,7 +1134,7 @@ class SettingsPage(BasePage):
         self.image_model.setStyleSheet(self.api_url.styleSheet())
         self.image_model.setText(self.config.get('Settings', 'image_analysis_model', 
             fallback='Pro/Qwen/Qwen2-VL-7B-Instruct'))
-        form_layout.addRow(QLabel("图像分析模型:", font=QFont("Microsoft YaHei UI", 9)), self.image_model)
+        form_layout.addRow(QLabel("图像分析模型:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.image_model)
         
         # 视频分析模型
         self.video_model = QLineEdit()
@@ -1159,7 +1142,7 @@ class SettingsPage(BasePage):
         self.video_model.setStyleSheet(self.api_url.styleSheet())
         self.video_model.setText(self.config.get('Settings', 'video_analysis_model', 
             fallback='Pro/Qwen/Qwen2-VL-7B-Instruct'))
-        form_layout.addRow(QLabel("视频分析模型:", font=QFont("Microsoft YaHei UI", 9)), self.video_model)
+        form_layout.addRow(QLabel("视频分析模型:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.video_model)
         
         # 文件分析模型
         self.file_model = QLineEdit()
@@ -1167,7 +1150,7 @@ class SettingsPage(BasePage):
         self.file_model.setStyleSheet(self.api_url.styleSheet())
         self.file_model.setText(self.config.get('Settings', 'file_analysis_model',
             fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'))
-        form_layout.addRow(QLabel("文件分析模型:", font=QFont("Microsoft YaHei UI", 9)), self.file_model)
+        form_layout.addRow(QLabel("文件分析模型:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.file_model)
         
         # 整理决策模型
         self.decision_model = QLineEdit()
@@ -1175,7 +1158,7 @@ class SettingsPage(BasePage):
         self.decision_model.setStyleSheet(self.api_url.styleSheet())
         self.decision_model.setText(self.config.get('Settings', 'decision_model',
             fallback='deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'))
-        form_layout.addRow(QLabel("整理决策模型:", font=QFont("Microsoft YaHei UI", 9)), self.decision_model)
+        form_layout.addRow(QLabel("整理决策模型:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.decision_model)
         
         # 设置滚动区域的内容
         scroll_area.setWidget(content_widget)
