@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /docs.html
+Allow: /img/
+
+Sitemap: http://ai-file.xzt.plus/sitemap.xml
