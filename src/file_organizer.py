@@ -66,6 +66,7 @@ class FileOrganizer:
         self.analysis_cache = {}
         self.decision_cache = {}
         self.logger = Logger()
+        self.prompt = None  # 添加提示词属性
         self.load_config()
 
     def load_config(self):
@@ -110,6 +111,10 @@ class FileOrganizer:
 
     def set_progress_callback(self, callback):
         self.progress_callback = callback
+
+    def set_prompt(self, prompt):
+        """设置提示词"""
+        self.prompt = prompt
 
     def _load_history(self):
         if os.path.exists(self.history_file):
@@ -1001,21 +1006,9 @@ class FileOrganizer:
                     
                     # 添加已有文件夹类型信息到提示中
                     existing_folders = "已有的文件夹类型：" + ", ".join(folder_categories.values()) if folder_categories else "暂无已创建的文件夹"
-                    print(lang_prompt,existing_folders)
-                    batch_data = {k: v for k, v in batch}
-                    response = self._call_api_with_retry(
-                        openai.ChatCompletion.create,
-                        model=self.decision_model,
-                        messages=[{
-                            "role": "user",
-                            "content": f"""根据分析结果和当前目录结构，为每批文件建议最佳的组织方式。
-当前输出目录结构：{dir_structure}
-{existing_folders}
-请优先使用已有的文件夹类型，避免创建相似功能的重复文件夹（如"压缩包"和"压缩文件"）。
-{lang_prompt}命名文件夹，{output_dir}，输出的路径需要包含文件名。"""
-                        },{
-                            "role": "system",
-                            "content": """
+                    
+                    # 构建系统提示词
+                    system_prompt = """
 请严格按照以下JSON格式输出（注意：不要输出多余的内容，只输出json，不要使用代码块包裹）：
 {
   "files": [
@@ -1027,10 +1020,27 @@ class FileOrganizer:
     }
   ]
 }"""
-                        },{
-                            "role": "user",
-                            "content": f"当前批次分析结果（共{len(batch)}个文件）：\n{json.dumps(batch_data, indent=2)}"
-                        }]
+                    
+                    # 构建用户提示词
+                    user_prompt = f"""根据分析结果和当前目录结构，为每批文件建议最佳的组织方式。
+当前输出目录结构：{dir_structure}
+{existing_folders}
+请优先使用已有的文件夹类型，避免创建相似功能的重复文件夹（如"压缩包"和"压缩文件"）。
+{lang_prompt}命名文件夹，{output_dir}，输出的路径需要包含文件名。"""
+
+                    # 如果有自定义提示词，添加到用户提示词中
+                    if self.prompt:
+                        user_prompt += f"\n\n用户自定义要求：\n{self.prompt}"
+
+                    batch_data = {k: v for k, v in batch}
+                    response = self._call_api_with_retry(
+                        openai.ChatCompletion.create,
+                        model=self.decision_model,
+                        messages=[
+                            {"role": "user", "content": user_prompt},
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": f"当前批次分析结果（共{len(batch)}个文件）：\n{json.dumps(batch_data, indent=2)}"}
+                        ]
                     )
 
                     content = response.choices[0].message.content.strip()

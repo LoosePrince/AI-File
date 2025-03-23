@@ -1,3 +1,4 @@
 1. 优化界面，使用自定义边框
 2. 添加 ollama api 支持
 3. 补全 requirements.txt
+4. 添加决策自定义提示词

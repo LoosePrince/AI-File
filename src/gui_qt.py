@@ -23,6 +23,11 @@ class OrganizeThread(QThread):
         super().__init__()
         self.directory = directory
         self.output_dir = output_dir
+        self.prompt = None  # 添加提示词属性
+
+    def set_prompt(self, prompt):
+        """设置提示词"""
+        self.prompt = prompt
 
     def run(self):
         try:
@@ -58,6 +63,9 @@ class OrganizeThread(QThread):
             organizer = FileOrganizer(api_key, output_dir=self.output_dir)
             # 添加进度回调
             organizer.set_progress_callback(progress_callback)
+            # 设置提示词
+            if self.prompt:
+                organizer.set_prompt(self.prompt)
             result = organizer.organize_directory(self.directory)
             self.finished.emit(result)
         except Exception as e:
@@ -294,6 +302,7 @@ class FileOrganizerGUI(QMainWindow):
                 background-color: #1e1e1e;
                 border-top-left-radius: 10px;
                 border-top-right-radius: 10px;
+                border: 1px solid #333333;
             }
         """)
         
@@ -304,7 +313,7 @@ class FileOrganizerGUI(QMainWindow):
         
         # 添加标题
         title_label = QLabel("文脉通")
-        title_label.setStyleSheet("color: #4CAF50; font-size: 14px; font-weight: bold;")
+        title_label.setStyleSheet("color: #4CAF50; font-size: 14px; font-weight: bold;border: none;background: transparent;")
         title_bar_layout.addWidget(title_label)
         
         # 添加弹性空间
@@ -389,7 +398,7 @@ class FileOrganizerGUI(QMainWindow):
                 font-family: "Microsoft YaHei UI";
             }
             QProgressBar::chunk {
-                background-color: #4CAF50;
+                background-color: #666666;
             }
             QScrollArea {
                 border: none;
@@ -408,23 +417,16 @@ class FileOrganizerGUI(QMainWindow):
             }
             /* 滚动条滑块 */
             QScrollBar::handle:vertical {
-                background: #4CAF50;
-                border-radius: 5px;
+                background: #666666;
                 min-height: 20px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background: #45a049;
+                border-radius: 5px;
             }
             /* 滚动条上方按钮 */
             QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
                 height: 0px;
             }
             /* 滚动条下方按钮 */
             QScrollBar::add-line:vertical {
-                border: none;
-                background: none;
                 height: 0px;
             }
             /* 滚动条背景 */
@@ -439,21 +441,14 @@ class FileOrganizerGUI(QMainWindow):
                 margin: 0px;
             }
             QScrollBar::handle:horizontal {
-                background: #4CAF50;
-                border-radius: 5px;
+                background: #666666;
                 min-width: 20px;
-            }
-            QScrollBar::handle:horizontal:hover {
-                background: #45a049;
+                border-radius: 5px;
             }
             QScrollBar::sub-line:horizontal {
-                border: none;
-                background: none;
                 width: 0px;
             }
             QScrollBar::add-line:horizontal {
-                border: none;
-                background: none;
                 width: 0px;
             }
             QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
@@ -617,8 +612,24 @@ class FileOrganizerGUI(QMainWindow):
             self.page_container.setCurrentWidget(self.about_page)
             
     def setup_file_manage_page(self, page):
-        # 将原有的文件整理页面内容移动到这里
-        content_layout = QVBoxLayout(page)
+        # 创建主布局
+        main_layout = QVBoxLayout(page)
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 创建滚动区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+        """)
+        
+        # 创建内容容器
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
         content_layout.setSpacing(20)
         
         # 修改标题和子标题的布局
@@ -626,7 +637,7 @@ class FileOrganizerGUI(QMainWindow):
         title_container.setStyleSheet("background: transparent; border: none;")
         title_layout = QVBoxLayout(title_container)
         title_layout.setSpacing(5)
-        title_layout.setContentsMargins(0, 0, 0, 20)
+        title_layout.setContentsMargins(0, 0, 0, 15)  # 减小底部边距
         
         # 标题和还原按钮行
         header_layout = QHBoxLayout()
@@ -639,7 +650,18 @@ class FileOrganizerGUI(QMainWindow):
         # 添加还原按钮
         self.restore_btn = QPushButton("一键还原")
         self.restore_btn.setObjectName("greenButton")
-        self.restore_btn.setStyleSheet("background-color: #4CAF50; color: white; border-radius: 10px; padding: 8px 16px;")
+        self.restore_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border-radius: 10px;
+                padding: 8px 16px;
+                font-size: 9pt;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """)
         self.restore_btn.clicked.connect(self.restore_files)
         self.restore_btn.hide()
         header_layout.addWidget(self.restore_btn)
@@ -663,7 +685,9 @@ class FileOrganizerGUI(QMainWindow):
             font-family: "Microsoft YaHei UI";
             border: none; 
             background: transparent;
-            padding: 10px;
+            padding: 8px 12px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
         """)
         self.path_label.setWordWrap(True)
         content_layout.addWidget(self.path_label)
@@ -677,8 +701,8 @@ class FileOrganizerGUI(QMainWindow):
         # 添加按钮容器
         button_container = QWidget()
         button_layout = QHBoxLayout(button_container)
-        button_layout.setContentsMargins(0, 10, 0, 10)
-        button_layout.setSpacing(10)
+        button_layout.setContentsMargins(0, 5, 0, 5)  # 减小上下边距
+        button_layout.setSpacing(12)  # 增加按钮间距
         
         # 添加选择文件夹按钮
         self.select_folder_btn = QPushButton('选择源文件夹')
@@ -689,6 +713,7 @@ class FileOrganizerGUI(QMainWindow):
                 border: none;
                 padding: 8px 16px;
                 border-radius: 5px;
+                font-size: 9pt;
             }
             QPushButton:hover {
                 background-color: #45a049;
@@ -706,6 +731,7 @@ class FileOrganizerGUI(QMainWindow):
                 border: none;
                 padding: 8px 16px;
                 border-radius: 5px;
+                font-size: 9pt;
             }
             QPushButton:hover {
                 background-color: #1976D2;
@@ -717,9 +743,52 @@ class FileOrganizerGUI(QMainWindow):
         button_layout.addStretch()
         content_layout.addWidget(button_container)
         
+        # 添加提示词输入框
+        prompt_container = QFrame()
+        prompt_container.setStyleSheet("""
+            QFrame {
+                background-color: #2d2d2d;
+                border-radius: 8px;
+                padding: 5px;
+                max-height: 160px;
+            }
+        """)
+        prompt_layout = QVBoxLayout(prompt_container)
+        prompt_layout.setSpacing(8)  # 减小内部间距
+        
+        # 提示词标签
+        prompt_label = QLabel("AI提示词（可选）：")
+        prompt_label.setStyleSheet("color: #ffffff; font-size: 9pt; border: none; background: transparent;")
+        prompt_label.setFont(QFont("Microsoft YaHei UI", 9))
+        prompt_layout.addWidget(prompt_label)
+        
+        # 提示词输入框
+        self.prompt_input = QTextEdit()
+        self.prompt_input.setPlaceholderText("在这里输入提示词，将影响AI的整理决策...")
+        self.prompt_input.setStyleSheet("""
+            QTextEdit {
+                background-color: #333333;
+                color: #ffffff;
+                border: 1px solid #444444;
+                border-radius: 4px;
+                padding: 5px;
+                min-height: 10px;
+                max-height: 40px;
+                font-size: 9pt;
+            }
+            QTextEdit:focus {
+                border: 1px solid #4CAF50;
+            }
+        """)
+        self.prompt_input.setFont(QFont("Microsoft YaHei UI", 9))
+        prompt_layout.addWidget(self.prompt_input)
+        
+        content_layout.addWidget(prompt_container)
+        
         # 创建文件列表（初始隐藏）
         self.file_list_widget = QListWidget()
         self.file_list_widget.setFont(QFont("Microsoft YaHei UI", 9))
+        self.file_list_widget.setMinimumHeight(600)  # 设置最小高度
         self.file_list_widget.setStyleSheet("""
             QListWidget {
                 background-color: transparent;
@@ -755,9 +824,23 @@ class FileOrganizerGUI(QMainWindow):
         self.progress_bar.hide()
         content_layout.addWidget(self.progress_bar)
         
-        # 添加底部按钮区域
+        # 添加弹性空间
+        # content_layout.addStretch()
+        
+        # 设置滚动区域的内容
+        scroll_area.setWidget(content_widget)
+        main_layout.addWidget(scroll_area)
+        
+        # 创建底部固定按钮区域
         bottom_frame = QFrame()
+        bottom_frame.setStyleSheet("""
+            QFrame {
+                background-color: #1e1e1e;
+                border-top: 1px solid #333333;
+            }
+        """)
         bottom_layout = QHBoxLayout(bottom_frame)
+        bottom_layout.setContentsMargins(20, 10, 20, 10)
         bottom_layout.setSpacing(10)
         
         # 添加取消和开始按钮
@@ -773,7 +856,7 @@ class FileOrganizerGUI(QMainWindow):
         self.start_btn.clicked.connect(self.start_organize)
         bottom_layout.addWidget(self.start_btn)
         
-        content_layout.addWidget(bottom_frame)
+        main_layout.addWidget(bottom_frame)
         
     def set_source_dir(self, path):
         self.source_dir = path
@@ -1024,6 +1107,11 @@ class FileOrganizerGUI(QMainWindow):
         self.organize_thread.progress.connect(self.update_progress)
         self.organize_thread.finished.connect(self.show_confirm_dialog)
         self.organize_thread.error.connect(self.organize_error)
+        
+        # 获取提示词
+        prompt = self.prompt_input.toPlainText().strip()
+        if prompt:
+            self.organize_thread.set_prompt(prompt)
         
         self.is_organizing = True
         self.progress_bar.show()

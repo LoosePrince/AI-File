@@ -264,6 +264,7 @@ class RenamePage(BasePage):
                 border: 1px solid #444444;
                 border-radius: 4px;
                 margin-top: 10px;
+                background-color: transparent;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
@@ -404,6 +405,7 @@ class RenamePage(BasePage):
                 border: 1px solid #444444;
                 border-radius: 4px;
                 margin-top: 10px;
+                background-color: transparent;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
