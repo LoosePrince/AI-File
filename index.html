@@ -196,16 +196,23 @@
             margin: 1.5rem 0;
         }
 
+        .download-buttons .btn {
+            min-width: 160px;
+            text-align: center;
+            padding: 0.8rem 2rem;
+        }
+
         .or-text {
             color: var(--text-gray);
             font-size: 0.9rem;
+            padding: 0 1rem;
         }
 
         @media (min-width: 768px) {
             .download-buttons {
                 flex-direction: row;
                 justify-content: center;
-                gap: 1.5rem;
+                gap: 0;
             }
         }
 
@@ -243,24 +250,101 @@
 
     <section class="hero">
         <h1>一键告别文件杂乱</h1>
-        <p>使用AI技术智能识别文件内容，自动整理归类，让您的文件管理更轻松、更高效</p>
+        <p>贯通文档信息的脉络，使用AI技术智能识别文件内容，自动整理归类，让您的文件管理更轻松、更高效</p>
         <a href="docs.html" class="btn">立即开始</a>
         <a href="#download" class="btn">下载软件</a>
     </section>
 
     <section class="features" id="features">
+        <!-- <h2>界面预览</h2> -->
+        <style>
+            .screenshot-container {
+                margin: 2rem 0;
+            }
+            
+            .screenshot-row {
+                display: flex;
+                align-items: center;
+                margin-bottom: 3rem;
+                flex-wrap: wrap;
+            }
+            
+            .screenshot-info {
+                flex: 1;
+                min-width: 300px;
+                padding: 1rem;
+            }
+            
+            .screenshot-image {
+                flex: 1;
+                min-width: 300px;
+                padding: 1rem;
+            }
+            
+            .screenshot-image img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            
+            @media (max-width: 768px) {
+                .screenshot-row {
+                    flex-direction: column;
+                }
+                
+                .screenshot-row.reverse {
+                    flex-direction: column-reverse;
+                }
+            }
+        </style>
+        
+        <div class="screenshot-container">
+            <!-- 第一行：文字在左，图片在右 -->
+            <div class="screenshot-row">
+                <div class="screenshot-info">
+                    <h3>文件整理功能</h3>
+                    <p>主界面用于文件整理操作，您可以在这里选择需要整理的文件或文件夹，并开始智能分类过程。软件会根据AI分析结果，自动将文件整理到合适的目录中，大幅提升文件管理效率。</p>
+                </div>
+                <div class="screenshot-image">
+                    <img src="img/001.png" alt="文件整理功能界面">
+                </div>
+            </div>
+            
+            <!-- 第二行：图片在左，文字在右 -->
+            <div class="screenshot-row reverse">
+                <div class="screenshot-image">
+                    <img src="img/002.png" alt="智能文件重命名界面">
+                </div>
+                <div class="screenshot-info">
+                    <h3>智能文件重命名</h3>
+                    <p>智能重命名功能可以根据文件内容自动生成合适的文件名，提高文件管理效率。系统会分析文件内容的关键信息，生成描述性强且规范的文件名称，帮助您更好地组织和查找文件。</p>
+                </div>
+            </div>
+            
+            <!-- 第三行：文字在左，图片在右 -->
+            <div class="screenshot-row">
+                <div class="screenshot-info">
+                    <h3>软件设置</h3>
+                    <p>在设置界面中，您可以配置API密钥、服务器地址、语言选项和文件操作模式等重要参数。通过灵活的配置选项，您可以根据个人需求自定义软件行为，获得最佳的使用体验。</p>
+                </div>
+                <div class="screenshot-image">
+                    <img src="img/003.png" alt="软件设置界面">
+                </div>
+            </div>
+        </div>
         <div class="feature-grid">
             <div class="feature-card">
                 <h3>AI智能识别</h3>
                 <p>使用先进的AI技术分析文件内容，支持图片、视频、文档等多种文件类型的智能识别</p>
             </div>
             <div class="feature-card">
-                <h3>智能重命名</h3>
-                <p>即将推出：AI智能识别文件内容，自动生成合适的文件名，支持批量重命名和自定义命名规则</p>
+                <h3>多格式支持</h3>
+                <p>支持图片、视频、文档等多种文件格式，满足不同类型文件的整理需求</p>
             </div>
             <div class="feature-card">
-                <h3>灵活设置</h3>
-                <p>支持API配置、语言设置、文件操作模式选择，完全适应您的个性化需求</p>
+                <h3>自定义AI模型</h3>
+                <p>支持用户自定义AI模型进行文件整理，包括图像分析、文件分析和决策模型，满足专业用户的需求</p>
             </div>
         </div>
     </section>
@@ -273,11 +357,11 @@
                 <ul class="feature-list">
                     <li>AI智能识别文件内容</li>
                     <li>自动分类整理文件</li>
-                    <li>支持图像压缩</li>
-                    <li>支持视频分析</li>
+                    <li>支持图像、视频、文档等多种文件格式</li>
                     <li>支持压缩包分析</li>
                     <li>文件复制/移动模式</li>
                     <li>中英文文件命名切换</li>
+                    <li>自定义AI模型</li>
                 </ul>
                 <h3>免费下载</h3>
                 <!-- <p style="color: var(--text-gray); margin: 1rem 0;">本软件完全免费，请加入QQ群：726741344下载最新版本</p> -->
@@ -291,7 +375,7 @@
     </section>
 
     <footer class="footer">
-        <p>© 2025 树梢（LoosePrince）. 保留所有权利。</p>
+        <p>© 2025 <a href="http://ai-file.xzt.plus" style="color: var(--text-gray); text-decoration: none;">ai-file.xzt.plus</a>. 保留所有权利。</p>
     </footer>
 </body>
 </html>
