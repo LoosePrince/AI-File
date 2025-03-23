@@ -1323,6 +1323,38 @@ class AboutPage(BasePage):
         return "了解更多信息"
         
     def setup_content(self, layout):
+        # 创建滚动区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #2d2d2d;
+                width: 10px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #666666;
+                min-height: 20px;
+                border-radius: 5px;
+            }
+            QScrollBar::add-line:vertical {
+                height: 0px;
+            }
+            QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """)
+        
+        # 创建内容容器
+        content_widget = QWidget()
+        content_widget.setStyleSheet("background-color: transparent;")
+        content_layout = QVBoxLayout(content_widget)
+        
         about_text = QLabel()
         about_text.setWordWrap(True)
         about_text.setOpenExternalLinks(True)
@@ -1357,9 +1389,15 @@ class AboutPage(BasePage):
             <li><a href="https://www.riverbankcomputing.com/software/pyqt/" style="color: #4CAF50; text-decoration: underline;">PyQt5</a></li>
             <li><a href="https://www.python.org" style="color: #4CAF50; text-decoration: underline;">Python 3.8+</a></li>
         </ul>
+        <p style="color: #ffffff;">主要开发者</p>
+        <ul style="color: #ffffff;">
+            <li><a href="https://github.com/LoosePrince" style="color: #4CAF50; text-decoration: underline;">树梢（LoosePrince）</a></li>
+        </ul>
         <br>
-        <p style="color: #aaaaaa;">© 2025 <a href="https://github.com/LoosePrince" style="color: #4CAF50; text-decoration: underline;">树梢（LoosePrince）</a>，所有权利保留。</p>
+        <p style="color: #aaaaaa;">© 2025 <a href="http://ai-file.xzt.plus" style="color: #4CAF50; text-decoration: underline;">ai-file</a>，所有权利保留。</p>
         """
         
         about_text.setText(about_content)
-        layout.addWidget(about_text)
+        content_layout.addWidget(about_text)
+        scroll_area.setWidget(content_widget)
+        layout.addWidget(scroll_area)

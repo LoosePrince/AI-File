@@ -312,7 +312,7 @@ class FileOrganizerGUI(QMainWindow):
         title_bar_layout.setSpacing(10)
         
         # 添加标题
-        title_label = QLabel("文脉通")
+        title_label = QLabel("文脉通 (DocStream Navigator)")
         title_label.setStyleSheet("color: #4CAF50; font-size: 14px; font-weight: bold;border: none;background: transparent;")
         title_bar_layout.addWidget(title_label)
         
