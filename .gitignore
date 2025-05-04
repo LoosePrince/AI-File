@@ -1,0 +1,15 @@
+# 忽略python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+# 忽略配置文件
+config.ini
+
+# 忽略日志文件
+log
+*.log
+
