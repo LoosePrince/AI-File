@@ -10,6 +10,8 @@ from file_organizer import FileOrganizer
 import json
 import re
 import openai
+import requests
+import time
 
 class BasePage(QWidget):
     def __init__(self):
@@ -158,7 +160,6 @@ class RenameWorker(QThread):
             
             if api_type == "Ollama API":
                 # 调用 Ollama API
-                import requests
                 response = requests.post(
                     f"{self.file_organizer.api_base}/api/generate",
                     json={
@@ -927,6 +928,93 @@ class RenamePage(BasePage):
             self.status_label.setText(status_text)
         QApplication.processEvents()  # 确保UI立即更新
 
+class ApiTestWorker(QThread):
+    """API测试线程"""
+    result = pyqtSignal(bool, str)  # 发送结果信号(成功/失败, 信息)
+    
+    def __init__(self, api_type, api_url, api_key, model):
+        super().__init__()
+        self.api_type = api_type
+        self.api_url = api_url
+        self.api_key = api_key
+        self.model = model
+        
+    def run(self):
+        try:
+            if self.api_type == "OpenAI API":
+                # 测试OpenAI API连接
+                start_time = time.time()
+                
+                # 保存原始设置
+                original_api_key = openai.api_key
+                original_api_base = openai.api_base
+                
+                try:
+                    # 临时设置API参数
+                    openai.api_key = self.api_key
+                    openai.api_base = self.api_url
+                    
+                    # 发送简单请求
+                    response = openai.ChatCompletion.create(
+                        model=self.model,  # 使用用户配置的模型
+                        messages=[
+                            {"role": "user", "content": "Hello, are you working?"}
+                        ],
+                        max_tokens=5
+                    )
+                    
+                    elapsed_time = time.time() - start_time
+                    
+                    if response and hasattr(response, 'choices') and len(response.choices) > 0:
+                        self.result.emit(True, f"连接成功! 模型: {self.model}, 响应时间: {elapsed_time:.2f}秒")
+                    else:
+                        self.result.emit(False, "API连接失败，未收到有效响应")
+                        
+                finally:
+                    # 恢复原始设置
+                    openai.api_key = original_api_key
+                    openai.api_base = original_api_base
+                    
+            elif self.api_type == "Ollama API":
+                # 测试Ollama API连接
+                start_time = time.time()
+                # 先测试基本连接
+                tags_response = requests.post(
+                    f"{self.api_url}/api/tags",
+                    timeout=10
+                )
+                
+                if tags_response.status_code == 200:
+                    # 如果基本连接成功，尝试使用指定模型发送简单请求
+                    try:
+                        model_response = requests.post(
+                            f"{self.api_url}/api/generate",
+                            json={
+                                "model": self.model,
+                                "prompt": "Hello, are you working?",
+                                "stream": False
+                            },
+                            timeout=15
+                        )
+                        elapsed_time = time.time() - start_time
+                        
+                        if model_response.status_code == 200:
+                            self.result.emit(True, f"连接成功! 模型: {self.model}, 响应时间: {elapsed_time:.2f}秒")
+                        else:
+                            # 如果模型请求失败，返回连接成功但模型可能不可用的消息
+                            self.result.emit(True, f"连接成功，但模型 {self.model} 可能不可用。API响应时间: {elapsed_time:.2f}秒")
+                    except Exception as e:
+                        # 如果模型请求异常，仍返回基本连接成功的消息
+                        elapsed_time = time.time() - start_time
+                        self.result.emit(True, f"API基本连接成功，但模型测试失败: {str(e)}. 响应时间: {elapsed_time:.2f}秒")
+                else:
+                    self.result.emit(False, f"API连接失败，状态码：{tags_response.status_code}")
+            else:
+                self.result.emit(False, "不支持的API类型")
+                
+        except Exception as e:
+            self.result.emit(False, f"连接失败: {str(e)}")
+
 class SettingsPage(BasePage):
     # 添加配置更新信号
     config_updated = pyqtSignal()
@@ -1029,6 +1117,14 @@ class SettingsPage(BasePage):
             }
         """)
         self.api_url.setText(self.config.get('API', 'api_url', fallback=''))
+        
+        # 根据当前API类型设置API URL的占位文本
+        current_api_type = self.api_type.currentText()
+        if current_api_type == "OpenAI API":
+            self.api_url.setPlaceholderText("https://api.openai.com/v1")
+        elif current_api_type == "Ollama API":
+            self.api_url.setPlaceholderText("http://localhost:11434")
+            
         form_layout.addRow(QLabel("API URL:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_url)
         
         # API Key
@@ -1038,6 +1134,36 @@ class SettingsPage(BasePage):
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setText(self.config.get('API', 'api_key', fallback=''))
         form_layout.addRow(QLabel("API Key:", font=QFont("Microsoft YaHei UI", 9), styleSheet="color: #ffffff; border: none; background: transparent;"), self.api_key)
+        
+        # 添加测试API连接按钮
+        self.test_api_button = QPushButton("测试连接")
+        self.test_api_button.setFont(QFont("Microsoft YaHei UI", 9))
+        self.test_api_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border-radius: 4px;
+                padding: 8px 16px;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
+            }
+            QPushButton:disabled {
+                background-color: #666666;
+            }
+        """)
+        self.test_api_button.clicked.connect(self.test_api_connection)
+        form_layout.addRow("", self.test_api_button)
+        
+        # API测试状态标签
+        self.api_test_result = QLabel("")
+        self.api_test_result.setFont(QFont("Microsoft YaHei UI", 9))
+        self.api_test_result.setStyleSheet("color: #aaaaaa; border: none; background: transparent;")
+        form_layout.addRow("", self.api_test_result)
         
         # 连接API类型变化信号
         self.api_type.currentTextChanged.connect(self.on_api_type_changed)
@@ -1268,52 +1394,125 @@ class SettingsPage(BasePage):
             print(f"加载子文件夹处理方式设置失败: {str(e)}")
             
     def on_api_type_changed(self, api_type):
-        """处理API类型变化"""
-        if api_type == "Ollama API":
-            self.api_key.setEnabled(False)
-            self.api_key.clear()
-            self.api_key.setPlaceholderText("Ollama API不需要密钥")
-        else:
+        """当API类型变化时更新UI"""
+        if api_type == "OpenAI API":
+            # OpenAI API需要API Key
             self.api_key.setEnabled(True)
             self.api_key.setPlaceholderText("")
+            self.api_url.setPlaceholderText("https://api.openai.com/v1")
+        elif api_type == "Ollama API":
+            # Ollama API可能不需要API Key
+            self.api_key.setEnabled(True)
+            self.api_key.setPlaceholderText("本地部署时可选")
+            self.api_url.setPlaceholderText("http://localhost:11434")
+        else:
+            # 其他API类型
+            self.api_key.setEnabled(True)
+            self.api_key.setPlaceholderText("")
+            self.api_url.setPlaceholderText("")
             
+        # 清空API测试结果
+        if hasattr(self, 'api_test_result'):
+            self.api_test_result.setText("")
+            self.api_test_result.setStyleSheet("color: #aaaaaa; border: none; background: transparent;")
+            
+    def test_api_connection(self):
+        """测试API连接"""
+        # 禁用测试按钮，避免重复点击
+        self.test_api_button.setEnabled(False)
+        self.test_api_button.setText("测试中...")
+        self.api_test_result.setText("正在测试API连接，请稍候...")
+        self.api_test_result.setStyleSheet("color: #f5a623; border: none; background: transparent;")
+        
+        # 获取当前API设置
+        api_type = self.api_type.currentText()
+        api_url = self.api_url.text().strip()
+        api_key = self.api_key.text().strip()
+        file_model = self.file_model.text().strip()
+        
+        # 如果URL或Key为空，显示错误
+        if not api_url:
+            self.api_test_result.setText("错误：请填写API URL")
+            self.api_test_result.setStyleSheet("color: #ff6b6b; border: none; background: transparent;")
+            self.test_api_button.setEnabled(True)
+            self.test_api_button.setText("测试连接")
+            return
+            
+        if not file_model:
+            self.api_test_result.setText("错误：文件分析模型不能为空")
+            self.api_test_result.setStyleSheet("color: #ff6b6b; border: none; background: transparent;")
+            self.test_api_button.setEnabled(True)
+            self.test_api_button.setText("测试连接")
+            return
+            
+        # 对于OpenAI API，API Key是必需的
+        if api_type == "OpenAI API" and not api_key:
+            self.api_test_result.setText("错误：OpenAI API需要API Key")
+            self.api_test_result.setStyleSheet("color: #ff6b6b; border: none; background: transparent;")
+            self.test_api_button.setEnabled(True)
+            self.test_api_button.setText("测试连接")
+            return
+        
+        # 创建并启动测试线程
+        self.api_test_worker = ApiTestWorker(api_type, api_url, api_key, file_model)
+        self.api_test_worker.result.connect(self.handle_api_test_result)
+        self.api_test_worker.start()
+    
+    def handle_api_test_result(self, success, message):
+        """处理API测试结果"""
+        if success:
+            self.api_test_result.setText(message)
+            self.api_test_result.setStyleSheet("color: #4CAF50; border: none; background: transparent;")
+        else:
+            self.api_test_result.setText(message)
+            self.api_test_result.setStyleSheet("color: #ff6b6b; border: none; background: transparent;")
+        
+        # 重新启用测试按钮
+        self.test_api_button.setEnabled(True)
+        self.test_api_button.setText("测试连接")
+
     def save_settings(self):
-        """保存设置到配置文件"""
+        """保存所有设置到配置文件"""
         try:
-            # 更新配置
-            if not self.config.has_section('API'):
-                self.config.add_section('API')
-            if not self.config.has_section('Settings'):
-                self.config.add_section('Settings')
-                
+            # 保存API设置
             self.config.set('API', 'api_type', self.api_type.currentText())
             self.config.set('API', 'api_url', self.api_url.text())
             self.config.set('API', 'api_key', self.api_key.text())
-            self.config.set('Settings', 'language', self.language.currentText())
-            self.config.set('Settings', 'file_operation', 'copy' if self.file_operation.currentText() == '复制' else 'move')
-            self.config.set('Settings', 'image_analysis_model', self.image_model.text())
-            self.config.set('Settings', 'file_analysis_model', self.file_model.text())
-            self.config.set('Settings', 'decision_model', self.decision_model.text())
-            self.config.set('Settings', 'enable_video_analysis', 'true' if self.enable_video.currentText() == '是' else 'false')
-            self.config.set('Settings', 'video_analysis_model', self.video_model.text())
             
-            # 保存线程数设置
+            # 保存基本设置
+            self.config.set('Settings', 'language', self.language.currentText())
+            file_op = 'copy' if self.file_operation.currentText() == '复制' else 'move'
+            self.config.set('Settings', 'file_operation', file_op)
+            
+            # 获取并保存子文件夹处理模式
+            subfolder_mode = self.subfolder_mode.currentData()
+            self.config.set('Settings', 'subfolder_mode', subfolder_mode)
+            
+            # 保存性能设置
             self.config.set('Settings', 'thread_count', str(self.thread_count.value()))
             
-            # 获取选中的处理方式
-            mode = self.subfolder_mode.itemData(self.subfolder_mode.currentIndex())
-            self.config.set('Settings', 'subfolder_mode', mode)
+            # 保存视频分析设置
+            self.config.set('Settings', 'enable_video_analysis', 'true' if self.enable_video.currentText() == '是' else 'false')
+            self.config.set('Settings', 'video_analysis_model', self.video_model.currentText())
             
-            # 保存到文件
-            with open('config.ini', 'w', encoding='utf-8') as f:
-                self.config.write(f)
+            # 保存模型设置
+            self.config.set('Settings', 'image_analysis_model', self.image_model.currentText())
+            self.config.set('Settings', 'file_analysis_model', self.file_model.currentText())
+            self.config.set('Settings', 'decision_model', self.decision_model.currentText())
+            
+            # 写入配置文件
+            with open('config.ini', 'w', encoding='utf-8') as configfile:
+                self.config.write(configfile)
                 
-            # 发送配置更新信号
+            # 更新全局设置并发送信号
+            import config
+            config.config_dict = config.load_config()
             self.config_updated.emit()
             
-            QMessageBox.information(self, "成功", "设置已保存")
+            QMessageBox.information(self, "设置保存", "设置已成功保存！")
+            
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"保存设置失败：{str(e)}")
+            QMessageBox.critical(self, "错误", f"保存设置时出错：{str(e)}")
 
 class AboutPage(BasePage):
     def get_title(self):
@@ -1371,7 +1570,7 @@ class AboutPage(BasePage):
         
         about_content = """
         <h2 style="color: #4CAF50;">文脉通 (DocStream Navigator)</h2>
-        <p style="color: #aaaaaa;">版本：v1.3.0</p>
+        <p style="color: #aaaaaa;">版本：v1.3.4</p>
         <br>
         <p style="color: #ffffff;">这是一个使用AI技术的智能文件整理工具，它可以：</p>
         <ul style="color: #ffffff;">
