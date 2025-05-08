@@ -79,6 +79,22 @@
             background-color: var(--bg-dark);
             color: var(--text-light);
             line-height: 1.6;
+            padding-top: 60px;
+        }
+
+        /* 顶部通知样式 */
+        .top-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ff5722;
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            z-index: 1000;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .header {
@@ -295,6 +311,11 @@
     </style>
 </head>
 <body>
+    <!-- 添加顶部通知栏 -->
+    <div class="top-notification">
+        本项目为练手项目，因项目代码混乱，现已无力维护，现有版本仍可使用，但不再更新，建议尝试其它的AI整理项目
+    </div>
+
     <header class="header">
         <a href="/" class="logo">
             <span>文脉通 (DocStream Navigator)</span>

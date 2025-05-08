@@ -1,0 +1,29 @@
+# 忽略python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+# 忽略配置文件
+config.ini
+*.ini
+*.json
+
+# 忽略日志文件
+log
+*.log
+
+# 忽略工作文件
+build
+src/dist
+cache
+.cursorrules
+.cursorignore
+
+# 忽略本地文件
+file_analysis_cache.json
+img
+out
+test_file
