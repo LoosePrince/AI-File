@@ -18,6 +18,7 @@ log
 # 忽略工作文件
 build
 src/dist
+cache
 .cursorrules
 .cursorignore
 

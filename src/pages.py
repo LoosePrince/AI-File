@@ -991,7 +991,7 @@ class ApiTestWorker(QThread):
                             f"{self.api_url}/api/generate",
                             json={
                                 "model": self.model,
-                                "prompt": "Hello, are you working?",
+                                "prompt": "Hi",
                                 "stream": False
                             },
                             timeout=15
@@ -1493,12 +1493,12 @@ class SettingsPage(BasePage):
             
             # 保存视频分析设置
             self.config.set('Settings', 'enable_video_analysis', 'true' if self.enable_video.currentText() == '是' else 'false')
-            self.config.set('Settings', 'video_analysis_model', self.video_model.currentText())
+            self.config.set('Settings', 'video_analysis_model', self.video_model.text())
             
             # 保存模型设置
-            self.config.set('Settings', 'image_analysis_model', self.image_model.currentText())
-            self.config.set('Settings', 'file_analysis_model', self.file_model.currentText())
-            self.config.set('Settings', 'decision_model', self.decision_model.currentText())
+            self.config.set('Settings', 'image_analysis_model', self.image_model.text())
+            self.config.set('Settings', 'file_analysis_model', self.file_model.text())
+            self.config.set('Settings', 'decision_model', self.decision_model.text())
             
             # 写入配置文件
             with open('config.ini', 'w', encoding='utf-8') as configfile:
@@ -1570,7 +1570,7 @@ class AboutPage(BasePage):
         
         about_content = """
         <h2 style="color: #4CAF50;">文脉通 (DocStream Navigator)</h2>
-        <p style="color: #aaaaaa;">版本：v1.3.0</p>
+        <p style="color: #aaaaaa;">版本：v1.3.4</p>
         <br>
         <p style="color: #ffffff;">这是一个使用AI技术的智能文件整理工具，它可以：</p>
         <ul style="color: #ffffff;">

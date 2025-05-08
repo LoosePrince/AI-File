@@ -27,10 +27,6 @@ class Logger:
         # 清除现有的处理器
         logger.handlers = []
         
-        # 在错误日志文件中添加分隔线
-        with open(error_log_file, 'a', encoding='utf-8') as f:
-            f.write(f"\n------------\n{datetime.datetime.now()} - 新会话开始\n------------\n")
-        
         # 添加处理器
         logger.addHandler(file_handler)
         logger.addHandler(error_handler)
