@@ -958,9 +958,9 @@ class ApiTestWorker(QThread):
                     response = openai.ChatCompletion.create(
                         model=self.model,  # 使用用户配置的模型
                         messages=[
-                            {"role": "user", "content": "Hello, are you working?"}
+                            {"role": "user", "content": "Hi"}
                         ],
-                        max_tokens=5
+                        max_tokens=1
                     )
                     
                     elapsed_time = time.time() - start_time
@@ -1570,7 +1570,7 @@ class AboutPage(BasePage):
         
         about_content = """
         <h2 style="color: #4CAF50;">文脉通 (DocStream Navigator)</h2>
-        <p style="color: #aaaaaa;">版本：v1.3.4</p>
+        <p style="color: #aaaaaa;">版本：v1.3.0</p>
         <br>
         <p style="color: #ffffff;">这是一个使用AI技术的智能文件整理工具，它可以：</p>
         <ul style="color: #ffffff;">

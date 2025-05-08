@@ -23,6 +23,7 @@ a = Analysis(
         'PIL',
         'PIL._imaging',
         'PIL.Image',
+        'py7zr'
     ],
     hookspath=[],
     hooksconfig={},
