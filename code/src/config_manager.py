@@ -1,6 +1,7 @@
 import configparser
 import os
 from typing import Dict, Any, Optional
+from pathlib import Path
 
 class ConfigManager:
     """配置文件管理器，负责读取和修改config.ini配置"""
@@ -12,6 +13,19 @@ class ConfigManager:
         Args:
             config_path: 配置文件路径
         """
+        # 如果传入相对路径且文件不存在，尝试常见备选位置（项目根 / code 目录）
+        if not os.path.isabs(config_path) and not os.path.exists(config_path):
+            # 项目结构： <repo_root>/code/config.ini
+            repo_root = Path(__file__).resolve().parents[2]  # src/ -> code/ -> repo_root
+            candidate = repo_root / "code" / "config.ini"
+            if candidate.exists():
+                config_path = str(candidate)
+            else:
+                # fallback: 同级 code/config.ini 相对路径
+                candidate = Path.cwd() / "code" / "config.ini"
+                if candidate.exists():
+                    config_path = str(candidate)
+
         # 确保使用绝对路径
         self.config_path = os.path.abspath(config_path)
         self.config = configparser.ConfigParser()

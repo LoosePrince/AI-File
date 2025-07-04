@@ -1,0 +1,557 @@
+{
+  "91f0f00acb7e4a2f02f41a8f8fcaea68": {
+    "file_info": {
+      "filename": "022.png",
+      "extension": ".png",
+      "size_bytes": 1601905,
+      "size_human": "1.5 MB",
+      "created_time": "2025-07-03T23:43:13.919795",
+      "modified_time": "2024-06-04T20:25:45.416538",
+      "accessed_time": "2025-07-04T17:13:14.547379",
+      "file_hash": "91f0f00acb7e4a2f02f41a8f8fcaea68",
+      "mime_type": "image/png",
+      "width": 1920,
+      "height": 1057,
+      "format": "PNG",
+      "mode": "RGBA",
+      "resolution": "1920x1057",
+      "has_transparency": true,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:14.613930",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\022.png"
+    },
+    "ai_result": {
+      "content": "这张图片中的主要内容是一段关于 Minecraft 游戏文化的文字，背景为深色，并带有一些像素化纹理。图片中可以看到大大的白色文字写着：“众所周知每个生电服都有一个黑山大叔直播切片”。此外，在图片的右下角有一个小标签，上面写着“直播切片”。整体构图较为简单，主要以文字为主，没有其他复杂的元素。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 76,
+        "prompt_tokens": 1833,
+        "total_tokens": 1909,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 3.2364025115966797
+      },
+      "timestamp": "2025-07-04T17:13:17.858546",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "ccfada01609a5f384959753a43f07d66": {
+    "file_info": {
+      "filename": "1712103987342.jpeg",
+      "extension": ".jpeg",
+      "size_bytes": 342109,
+      "size_human": "334.1 KB",
+      "created_time": "2025-07-03T23:43:13.923118",
+      "modified_time": "2024-06-04T20:25:47.750366",
+      "accessed_time": "2025-07-04T17:13:17.863171",
+      "file_hash": "ccfada01609a5f384959753a43f07d66",
+      "mime_type": "image/jpeg",
+      "width": 1536,
+      "height": 2876,
+      "format": "JPEG",
+      "mode": "RGB",
+      "resolution": "1536x2876",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:17.865344",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\1712103987342.jpeg"
+    },
+    "ai_result": {
+      "content": "这是一幅动漫风格的插画。画面中心是一个蓝色长发的女孩，她站在阳台上，目光向上凝视着天空。她的表情显得有些惊讶或者好奇。背景是蓝天白云，阳光透过云层洒下，给整个画面增添了一种梦幻的感觉。右上角有一行日文“雪が降りたい”，意思是“希望下雪”。整体色调偏冷，以蓝色为主，营造出一种宁静而清新的氛围。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 88,
+        "prompt_tokens": 1861,
+        "total_tokens": 1949,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 2.7723817825317383
+      },
+      "timestamp": "2025-07-04T17:13:20.640268",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "6bf3f625289c34f77725eaefd03aff98": {
+    "file_info": {
+      "filename": "2.png",
+      "extension": ".png",
+      "size_bytes": 31705,
+      "size_human": "31.0 KB",
+      "created_time": "2025-07-03T23:43:13.925151",
+      "modified_time": "2024-06-04T20:25:49.179674",
+      "accessed_time": "2025-07-04T17:13:20.643225",
+      "file_hash": "6bf3f625289c34f77725eaefd03aff98",
+      "mime_type": "image/png",
+      "width": 499,
+      "height": 799,
+      "format": "PNG",
+      "mode": "RGB",
+      "resolution": "499x799",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:20.645945",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\2.png"
+    },
+    "ai_result": {
+      "content": "这是一张用户注册页面的截图，显示了一个用户信息填写界面。\n\n1. **主要对象**：\n   - 图片上方有两个输入框，分别用于输入“李”和“修晴”作为用户名。\n   - 下方有一个邮箱地址输入框，其中已经填入一个邮箱地址 \"1377820366@qq.com\"。\n   - 右侧有一个下拉菜单，显示了国家/地区选择框，当前选择的是中国。\n   - 再往下是一个电话号码输入框，里面显示了中国的国际电话号码 \"+86\" 和具体的手机号码 \"18270712571\"。\n   - 接下来是一个密码输入框，旁边有一个眼睛图标，表示可以切换密码可见性。\n   - 最后是一个复选框，标题为“HP可向我发送定制产品和服务、技术支持更新和活动新闻的电子邮件”，旁边有一个勾选框，目前未被勾选。\n\n2. **场景**：\n   该界面似乎是在一个网站或应用程序的用户注册过程中，用户需要填写个人信息以便注册账户。\n\n3. **颜色**：\n   - 背景色为白色。\n   - 输入框和按钮的颜色主要为灰色的边框，部分元素（如“Antzero666”）使用了蓝色高亮显示。\n   - 复选框旁边有一个蓝色的勾选标记。\n\n4. **构图**：\n   - 整个页面布局清晰，从上到下依次排列各个输入字段。\n   - 每个输入框之间有适当的间距，便于用户阅读和操作。\n   - 页面底部有一段关于隐私声明的文字，解释了用户同意HP发送相关信息的细节。\n\n5. **文字**：\n   - “李”\n   - “修晴”\n   - “1377820366@qq.com”\n   - “这将为您用户的名称”\n   - “+86”\n   - “18270712571”\n   - “Antzero666”\n   - “HP可向我发送定制产品和服务、技术支持更新和活动新闻的电子邮件。”\n   - “单击‘注册’，即表明您同意HP隐私声明。”\n\n6. **风格**：\n   - 这是一个典型的网页表单设计，风格简洁明了，符合现代用户体验设计（UX）规范。\n   - 配色简单，主要以灰白为主色调，配以少量蓝色点缀，显得专业且易于阅读。\n\n总结来说，这张图片展示的是一个用户注册页面，用户需要填写个人基本信息，并同意隐私声明后完成注册。页面设计简洁、功能明确，符合现代网络应用的设计标准。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 498,
+        "prompt_tokens": 1455,
+        "total_tokens": 1953,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 5.076521158218384
+      },
+      "timestamp": "2025-07-04T17:13:25.723001",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "420a17af3fdb6f23a7b9ac8087f080b7": {
+    "file_info": {
+      "filename": "2.psd",
+      "extension": ".psd",
+      "size_bytes": 3067505,
+      "size_human": "2.9 MB",
+      "created_time": "2025-07-03T23:43:13.928135",
+      "modified_time": "2024-06-04T20:25:49.500155",
+      "accessed_time": "2025-07-04T17:13:25.731137",
+      "file_hash": "420a17af3fdb6f23a7b9ac8087f080b7",
+      "mime_type": "unknown",
+      "content_preview": "8BPS\u0000\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0003\u0000\u0000\u0002l\u0000\u0000\u0002\u0000\b\u0000\u0003\u0000\u0000\u0000\u0000\u0000\u0000t8BIM\u0004%\u0000\u0000\u0000\u0000\u0000\u0010\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00008BIM\u0004$\u0000\u0000\u0000\u00009)<?xpacket begin=\"ï»¿\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.6-c148 79.164036, 2019/08/13-01:06:57        \">\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n      <rdf:Description rdf:about=\"\"\n            xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"\n            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n            xmlns:photoshop=\"http://ns.adobe.com/photoshop/1.0/\"\n            xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\"\n            xmlns:stEvt=\"http://ns.adobe.com/xap/1.0/sType/ResourceEvent#\">\n         <xmp:CreatorTool>Adobe Photoshop 21.0 (Windows)</xmp:CreatorTool>\n         <xmp:CreateDate>2022-11-14T21:31:04+08:00</xmp:CreateDate>\n         <xmp:ModifyDate>2022-11-14T22:23:54+08:00</xmp:ModifyDate>\n         <xmp:MetadataDate>2022-11-14T22:23:54+08:00</xmp:MetadataDate>\n         <dc:format>application/vnd.adobe.photoshop</dc:format>\n  ",
+      "line_count": 57990,
+      "character_count": 3067471,
+      "word_count": 81847,
+      "encoding": "iso-8859-1",
+      "has_full_content": true,
+      "file_type": "unknown",
+      "extraction_time": "2025-07-04T17:13:25.772845",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\2.psd"
+    },
+    "ai_result": null
+  },
+  "7a5f1e1dc254ea794081e03d7670a9b8": {
+    "file_info": {
+      "filename": "2023-01-11_15.01.34.png",
+      "extension": ".png",
+      "size_bytes": 1633960,
+      "size_human": "1.6 MB",
+      "created_time": "2025-07-03T23:43:13.934003",
+      "modified_time": "2024-06-04T20:25:50.004518",
+      "accessed_time": "2025-07-04T17:13:25.779615",
+      "file_hash": "7a5f1e1dc254ea794081e03d7670a9b8",
+      "mime_type": "image/png",
+      "width": 1920,
+      "height": 991,
+      "format": "PNG",
+      "mode": "RGBA",
+      "resolution": "1920x991",
+      "has_transparency": true,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:25.806198",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\2023-01-11_15.01.34.png"
+    },
+    "ai_result": {
+      "content": "图片展示了一个由方块构成的虚拟地形，具有绿色植物和灰色岩石的纹理。场景中有几座建筑，包括一座高塔和几栋低层建筑，周围环绕着树木。整体色调为蓝色，构图呈现出一种幻想风格，类似于电子游戏中的场景。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 57,
+        "prompt_tokens": 1833,
+        "total_tokens": 1890,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 2.6133012771606445
+      },
+      "timestamp": "2025-07-04T17:13:28.425891",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "2687a398d4a443780ff8a9ad69a3e7e6": {
+    "file_info": {
+      "filename": "3 (1).png",
+      "extension": ".png",
+      "size_bytes": 1584458,
+      "size_human": "1.5 MB",
+      "created_time": "2025-07-03T23:43:13.937017",
+      "modified_time": "2024-06-04T20:25:50.243828",
+      "accessed_time": "2025-07-04T17:13:28.431107",
+      "file_hash": "2687a398d4a443780ff8a9ad69a3e7e6",
+      "mime_type": "image/png",
+      "width": 1080,
+      "height": 2582,
+      "format": "PNG",
+      "mode": "RGBA",
+      "resolution": "1080x2582",
+      "has_transparency": true,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:28.468962",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\3 (1).png"
+    },
+    "ai_result": {
+      "content": "图片展示了一个名为《旅行者》的游戏界面，具体是深境螺旋第十二层的战绩页面。画面采用了深蓝色的背景，顶部有游戏标题“旅行者”和“DinosLP”，以及战绩显示为“9/9”，统计周期为“2022.11.01-2022.11.16”。挑战阵容部分则列出了三个不同时间段的挑战记录，每个时间段都有三组挑战画面。\n\n1. **主要对象**：\n   - 图片中央是深境螺旋第十二层的挑战记录，在不同的时间段展示了挑战的完成情况。\n   - 挑战画面的顶部标明了挑战时间，例如“2022.11.07 18:05:20”。\n\n2. **场景**：\n   - 场景主要是深蓝色的背景，营造了一种神秘和深邃的氛围，可能是在游戏中的某个深处。\n\n3. **颜色**：\n   - 主色调为深蓝色，给人一种冷静、沉稳的感觉。\n   - 挑战画面的角色设计具有多样的颜色，包括绿色、黄色、紫色、蓝色、橙色等，为整体增添了活力。\n\n4. **构图**：\n   - 图片的顶部是标题和战绩信息，占据了图片的上半部分。\n   - 中间部分为主要的内容区域，展示了不同时间段的挑战画面，分为三行，每行显示三组挑战。\n   - 图片底部没有明显的其他内容，保持简洁，使观众能够集中注意力在挑战记录上。\n\n整体来说，这张图片呈现了一个游戏界面，主要目的是展示玩家在特定时间段内的深境螺旋第十二层的挑战战绩。画面设计简洁明了，颜色搭配鲜明，有助于突出挑战记录。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 335,
+        "prompt_tokens": 1861,
+        "total_tokens": 2196,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 4.26645827293396
+      },
+      "timestamp": "2025-07-04T17:13:32.741458",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "d8f0f80b32ba7f41ef5187089d9e7ea9": {
+    "file_info": {
+      "filename": "3.jpg",
+      "extension": ".jpg",
+      "size_bytes": 386707,
+      "size_human": "377.6 KB",
+      "created_time": "2025-07-03T23:43:13.939018",
+      "modified_time": "2024-06-04T20:25:50.395544",
+      "accessed_time": "2025-07-04T17:13:32.744662",
+      "file_hash": "d8f0f80b32ba7f41ef5187089d9e7ea9",
+      "mime_type": "image/jpeg",
+      "width": 782,
+      "height": 1045,
+      "format": "JPEG",
+      "mode": "RGB",
+      "resolution": "782x1045",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:32.746202",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\3.jpg"
+    },
+    "ai_result": {
+      "content": "图片展示了一位年轻男性，他身穿黑色连帽衫，内搭白色T恤，左手持有一张身份证。身份证上显示着他的姓名、性别、民族、出生日期、地址以及身份证号码。背景为纯白色墙面，整体画面简洁明了。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 54,
+        "prompt_tokens": 2043,
+        "total_tokens": 2097,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 1.7064087390899658
+      },
+      "timestamp": "2025-07-04T17:13:34.454032",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "0326cf77d006b834e150f080978d0caa": {
+    "file_info": {
+      "filename": "3.png",
+      "extension": ".png",
+      "size_bytes": 45771,
+      "size_human": "44.7 KB",
+      "created_time": "2025-07-03T23:43:13.941780",
+      "modified_time": "2024-06-04T20:25:50.559878",
+      "accessed_time": "2025-07-04T17:13:34.456728",
+      "file_hash": "0326cf77d006b834e150f080978d0caa",
+      "mime_type": "image/png",
+      "width": 645,
+      "height": 799,
+      "format": "PNG",
+      "mode": "RGB",
+      "resolution": "645x799",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:34.461182",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\3.png"
+    },
+    "ai_result": {
+      "content": "图片展示了一个Adobe登录界面，顶部是Adobe的标志，下面有“输入您的密码”的提示。输入框里填有用户名为“1377820366@qq.com”和密码“Antzero666”。右侧有一个眼睛图标，可以切换密码显示状态。在输入框下方，有一个蓝色的“继续”按钮。底部有两个选项，分别是“重置您的密码”和“登录到其他账户”。整体界面简洁，以白色为主色调，文字颜色主要为黑色和蓝色。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 101,
+        "prompt_tokens": 1455,
+        "total_tokens": 1556,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 1.639981985092163
+      },
+      "timestamp": "2025-07-04T17:13:36.101882",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "3f02f4af9c639458bf550d23c0fb0ff0": {
+    "file_info": {
+      "filename": "4x.png",
+      "extension": ".png",
+      "size_bytes": 37183522,
+      "size_human": "35.5 MB",
+      "created_time": "2025-07-03T23:43:13.943797",
+      "modified_time": "2024-06-04T20:25:52.147412",
+      "accessed_time": "2025-07-04T17:13:36.191399",
+      "file_hash": "3f02f4af9c639458bf550d23c0fb0ff0",
+      "mime_type": "image/png",
+      "width": 11376,
+      "height": 6400,
+      "format": "PNG",
+      "mode": "RGBA",
+      "resolution": "11376x6400",
+      "has_transparency": true,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:36.784765",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\4x.png"
+    },
+    "ai_result": {
+      "content": "",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {},
+      "metadata": {},
+      "timestamp": "2025-07-04T17:13:48.636181",
+      "success": false,
+      "error_message": "Error code: 413 - {'code': 20042, 'message': 'Request entity is too large.', 'data': None}"
+    }
+  },
+  "c90b719e92d7bca18e6a185c6d7261d8": {
+    "file_info": {
+      "filename": "559101a304aaa2201175c3190be2c1c01620660838041.jpeg",
+      "extension": ".jpeg",
+      "size_bytes": 48079,
+      "size_human": "47.0 KB",
+      "created_time": "2025-07-03T23:43:13.953778",
+      "modified_time": "2024-06-04T20:25:52.294124",
+      "accessed_time": "2025-07-04T17:13:48.643983",
+      "file_hash": "c90b719e92d7bca18e6a185c6d7261d8",
+      "mime_type": "image/jpeg",
+      "width": 241,
+      "height": 241,
+      "format": "JPEG",
+      "mode": "RGB",
+      "resolution": "241x241",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:48.644726",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\559101a304aaa2201175c3190be2c1c01620660838041.jpeg"
+    },
+    "ai_result": {
+      "content": "这幅图片展示了一个非常可爱的卡通人物。她有一双大大的红眼睛，眼神有些呆萌，脸上还有两个微微泛红的腮红，显得十分可爱。她的头发是金色的，并且扎成了两个小马尾，看起来非常清新。她的头上戴着一顶红色和白色相间的帽子，上面装饰了一个金色的符号，帽子两侧还有白色的毛茸茸的耳罩，给人一种可爱又俏皮的感觉。\n\n她正在竹子桌子前，双手托着下巴，似乎在思考或等待什么。背景是一个模糊的室内场景，可以看到一些模糊的物体，但无法明确辨认其具体内容。整体色调温暖，主要使用了红色、白色、金色以及柔和的背景色，营造出一种温馨、依赖的氛围。\n\n综上所述，这幅图片中的主要元素是一个可爱的卡通人物，戴着红色和白色相间的帽子，坐在桌子前，表现出一种呆萌、期待的神情。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 180,
+        "prompt_tokens": 447,
+        "total_tokens": 627,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 1.9569759368896484
+      },
+      "timestamp": "2025-07-04T17:13:50.602252",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "2eb74d178b1839a296ac7e9d462d7e37": {
+    "file_info": {
+      "filename": "82225530.png",
+      "extension": ".png",
+      "size_bytes": 1733718,
+      "size_human": "1.7 MB",
+      "created_time": "2025-07-03T23:43:13.956578",
+      "modified_time": "2024-06-04T20:25:52.792815",
+      "accessed_time": "2025-07-04T17:13:50.610028",
+      "file_hash": "2eb74d178b1839a296ac7e9d462d7e37",
+      "mime_type": "image/png",
+      "width": 2508,
+      "height": 2508,
+      "format": "PNG",
+      "mode": "RGB",
+      "resolution": "2508x2508",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:50.660866",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\82225530.png"
+    },
+    "ai_result": {
+      "content": "图片中展示了一位动漫风格的女性角色，她有着浅色的头发和猫耳，穿着带有红色蝴蝶结的粉色外套，背景简单，有几何图案的窗户。角色的表情显得有些害羞或者困惑，整体氛围柔和且温馨。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 49,
+        "prompt_tokens": 2043,
+        "total_tokens": 2092,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 2.3576881885528564
+      },
+      "timestamp": "2025-07-04T17:13:53.026756",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "003b210939b2f97afc7a7d66526a8dca": {
+    "file_info": {
+      "filename": "91dc6d0d50108c26085e5d61daa506a61620741410743.gif",
+      "extension": ".gif",
+      "size_bytes": 2307597,
+      "size_human": "2.2 MB",
+      "created_time": "2025-07-03T23:43:13.959702",
+      "modified_time": "2024-06-04T20:25:53.033216",
+      "accessed_time": "2025-07-04T17:13:53.035952",
+      "file_hash": "003b210939b2f97afc7a7d66526a8dca",
+      "mime_type": "image/gif",
+      "width": 186,
+      "height": 288,
+      "format": "GIF",
+      "mode": "P",
+      "resolution": "186x288",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:53.044269",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\91dc6d0d50108c26085e5d61daa506a61620741410743.gif"
+    },
+    "ai_result": {
+      "content": "图片中的主要对象是一只柴犬，具有典型的三色毛发——浅棕色、黑色和白色。这只柴犬正被一个人用双手握住，它的脖子上似乎被系了一个领结或项圈。柴犬的表情显得非常开心，嘴巴微微张开，露出笑容。背景是浅色的，可能是床或柔软的表面，上面有一些绿色和白色的图案。整体场景看起来温馨而有趣，突显了人与宠物之间的亲密关系。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 91,
+        "prompt_tokens": 447,
+        "total_tokens": 538,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 2.146979331970215
+      },
+      "timestamp": "2025-07-04T17:13:55.202094",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "e7df1f2ce4d060cb8060107fe2f8e680": {
+    "file_info": {
+      "filename": "9835059017ef1ba9e2a131f31aaabdebe54c8d5b.png",
+      "extension": ".png",
+      "size_bytes": 733350,
+      "size_human": "716.2 KB",
+      "created_time": "2025-07-03T23:43:13.964707",
+      "modified_time": "2024-06-04T20:25:53.195806",
+      "accessed_time": "2025-07-04T17:13:55.210381",
+      "file_hash": "e7df1f2ce4d060cb8060107fe2f8e680",
+      "mime_type": "image/png",
+      "width": 1080,
+      "height": 1080,
+      "format": "PNG",
+      "mode": "RGBA",
+      "resolution": "1080x1080",
+      "has_transparency": true,
+      "exif": {
+        "ExifOffset": "26",
+        "ColorSpace": "1",
+        "ExifImageWidth": "1080",
+        "ExifImageHeight": "1080"
+      },
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:55.219461",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\9835059017ef1ba9e2a131f31aaabdebe54c8d5b.png"
+    },
+    "ai_result": {
+      "content": "这是一幅卡通风格的图片，画面中描绘了一位可爱的角色。角色有浅蓝色的头发，头上戴着两个大棕色螺旋形耳朵，耳朵上装饰着蓝色和粉色的蝴蝶结。角色的眼睛很大，呈蓝色，眼神充满活力。她张着嘴，似乎在喊叫或说话，脸颊因激动或害羞而泛红。整个画面的背景是纯白色，突出了角色的表情和细节。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 82,
+        "prompt_tokens": 2043,
+        "total_tokens": 2125,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 2.46425461769104
+      },
+      "timestamp": "2025-07-04T17:13:57.688690",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "d39b1546cbedca09a8b3c79c3f1488de": {
+    "file_info": {
+      "filename": "9a5083151409fe8f643576a71c79f614.jpeg",
+      "extension": ".jpeg",
+      "size_bytes": 223305,
+      "size_human": "218.1 KB",
+      "created_time": "2025-07-03T23:43:13.966728",
+      "modified_time": "2024-06-04T20:25:53.322632",
+      "accessed_time": "2025-07-04T17:13:57.691993",
+      "file_hash": "d39b1546cbedca09a8b3c79c3f1488de",
+      "mime_type": "image/jpeg",
+      "width": 1024,
+      "height": 1536,
+      "format": "JPEG",
+      "mode": "RGB",
+      "resolution": "1024x1536",
+      "has_transparency": false,
+      "file_type": "image",
+      "extraction_time": "2025-07-04T17:13:57.693428",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\9a5083151409fe8f643576a71c79f614.jpeg"
+    },
+    "ai_result": {
+      "content": "图片展示了一位蓝发少女，她有着柔和的蓝色长发，发饰点缀着白色的小花。她的眼睛大而明亮，透露出一种温柔的表情。少女身穿带有金色纽扣和装饰的深色连衣裙，脖子上挂着钥匙链，上面有一个可爱的玩偶。她手中握着一朵粉红色的花，整体色调柔和，画面给人一种宁静和温馨的感觉。",
+      "model": "deepseek-ai/deepseek-vl2",
+      "usage": {
+        "completion_tokens": 78,
+        "prompt_tokens": 1455,
+        "total_tokens": 1533,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "metadata": {
+        "duration": 1.8646435737609863
+      },
+      "timestamp": "2025-07-04T17:13:59.559078",
+      "success": true,
+      "error_message": ""
+    }
+  },
+  "7dd4e3935233389ec295563c919c9f8c": {
+    "file_info": {
+      "filename": "小密花乡.docx",
+      "extension": ".docx",
+      "size_bytes": 3699974,
+      "size_human": "3.5 MB",
+      "created_time": "2025-07-03T23:43:13.968734",
+      "modified_time": "2022-08-08T16:24:02",
+      "accessed_time": "2025-07-04T17:13:59.574995",
+      "file_hash": "7dd4e3935233389ec295563c919c9f8c",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "paragraph_count": 25,
+      "character_count": 1258,
+      "word_count": 25,
+      "content_preview": "第三篇前置\n小密花乡系列数字藏品将于须弥幻境首发推出！！\n小密花乡景区是国家AAAA级旅游景区，总规划面积约4.7万亩，范围涉及小密乡石背、杉背、半迳、莲塘、小密5个行政村。\n为挖掘并赋予数字藏品文化内涵与价值，小密花乡景区携手江西开创数码科技有限公司，将在【须弥幻境】发售小密花乡数字藏品，开启数藏行业赋能传统文旅发展的使命，让文旅业在元宇宙中创造无限的可能。\n与此同时，【须弥幻境】作为助力文旅产业数字化发展的基石，将陆续上线多个国内知名景区IP，敬请期待。\n+第四篇\n第一篇\n小密花乡简介\n位于赣州市会昌县小密乡，距离会昌县城、于都县城、瑞金市区均在40分钟车程。\n沿着11公里的特色农业景观大道，串联起万荟城美食村、游客集散中心、中华花卉科普博览园、丰源杜鹃产业博览园、特色山间民宿、小密农家大院、鲜切花卉生态休闲观光产业园、贝贝小南瓜产业基地、石村创意民宿、四季果蔬采摘园、亲子乐园、龙昌大观园、杨梅湖生态脐橙文化主题公园、冷杉小密花海影视基地、禅心小镇、小密新区等十六大旅游景点。\n第二篇\n小密花乡系列数字藏品将于须弥幻境首发推出！！——硒妹子\n与此同时，【须弥幻境】作为助力文旅产业数字化发展的基石，将陆续上线多个国内知名景区IP，敬请期待。\n第三篇\n小密花乡主要景点\n1.花乡广场\n广场呈现的是阴阳太极图和花瓣造型，设计理念体现了会昌元素和花卉特点，设计灵感来源于会昌县城山水地貌，登临会昌城外高峰，俯瞰县城三江交汇，形式阴阳太极。\n广场上有一块观景石，“风景这边独好”格外醒目，来源于毛主席著名诗词《清平乐·会昌》中的“东方欲晓，莫到君行早。踏遍青山人未老，风景这边独好”。如今，“风景这边独好”成为了会昌的名片。\n2.万荟城·美食村\n美食村采用了客家围屋与江南风情相结合的设计理念，特色民宿区、客家非遗美食街及慢生活风情街等部分组成。\n3.特色农业景观大道\n特色农业景观大道总长约11.5公里，一年四季都有花开“春天赏桃花、夏天看槐花、秋天闻桂花、冬天观腊梅”，特色农业景观大道将华夏杜鹃第一园、贝贝小南瓜种植基地、鲜切花卉产业基地、冷杉花海影视基地等12个项目串点成线，贯穿着农业艺术、浪漫爱情、山居樱谷、盆景艺术等主题景观，形成了一条花海、田园、村庄、人文于一体的景观带。在这里可以赏花看景，体验农耕文化，感受田园乐趣。\n4.华夏杜鹃第一园\n园区占地面积500亩，种植了春鹃、",
+      "metadata": {
+        "author": "Administrator",
+        "created": "2022-08-08T07:06:00+00:00",
+        "last_modified_by": "Administrator",
+        "modified": "2022-08-08T08:24:00+00:00"
+      },
+      "file_type": "document",
+      "extraction_time": "2025-07-04T17:13:59.607370",
+      "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\小密花乡.docx"
+    },
+    "ai_result": null
+  }
+}

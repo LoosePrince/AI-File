@@ -779,4 +779,580 @@ html, body {
         --text-primary: #ffffff;
         --border-primary: #666666;
     }
+}
+
+/* ==================== 文件选择和显示样式 ==================== */
+
+/* 文件选择区域 */
+.file-selection-area,
+.rename-selection-area {
+    margin-bottom: 24px;
+}
+
+/* 扫描选项 */
+.scan-options {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+}
+
+.scan-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.scan-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.scan-controls input[type="checkbox"] {
+    margin: 0;
+}
+
+.scan-controls select {
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+/* 文件显示区域 */
+.file-display-area,
+.rename-display-area {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.file-display-header,
+.rename-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.file-stats,
+.rename-stats {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.file-stats span,
+.rename-stats span {
+    margin-right: 16px;
+}
+
+.file-actions,
+.rename-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.file-actions .btn,
+.rename-actions .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* 文件列表容器 */
+.file-list-container,
+.rename-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* 文件列表项 */
+.file-list .file-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-secondary);
+    transition: var(--transition-fast);
+}
+
+.file-list .file-item:last-child {
+    border-bottom: none;
+}
+
+.file-list .file-item:hover {
+    background: var(--bg-hover);
+}
+
+.file-checkbox {
+    margin-right: 12px;
+    accent-color: var(--accent-primary);
+}
+
+.file-icon {
+    font-size: 20px;
+    margin-right: 12px;
+    width: 24px;
+    text-align: center;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    word-break: break-all;
+}
+
+.file-details {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.file-size,
+.file-type {
+    background: var(--bg-accent);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.file-actions .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.btn-preview {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+}
+
+.btn-preview:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.btn-rename {
+    background: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    color: white;
+}
+
+.btn-rename:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn-remove {
+    background: var(--danger);
+    border: 1px solid var(--danger);
+    color: white;
+}
+
+.btn-remove:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.btn-outline:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+/* 重命名文件列表 */
+.rename-file-list .rename-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-secondary);
+    transition: var(--transition-fast);
+}
+
+.rename-file-list .rename-item:last-child {
+    border-bottom: none;
+}
+
+.rename-file-list .rename-item:hover {
+    background: var(--bg-hover);
+}
+
+.rename-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.current-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.new-name {
+    color: var(--accent-primary);
+    font-style: italic;
+}
+
+.new-name.empty {
+    color: var(--text-muted);
+}
+
+.rename-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+/* 模态对话框 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-container {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+.preview-modal .modal-container {
+    max-width: 800px;
+    max-height: 90vh;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 18px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.modal-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+}
+
+/* 重命名对话框 */
+.rename-dialog .file-info-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.rename-dialog .file-icon {
+    font-size: 24px;
+    margin: 0;
+}
+
+.rename-dialog .current-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.1);
+}
+
+.file-extension {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+.name-suggestions {
+    margin-bottom: 16px;
+}
+
+.name-suggestions label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.suggestion-item:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+.suggestion-text {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* 文件预览 */
+.preview-content {
+    text-align: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.preview-info {
+    background: var(--bg-secondary);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+}
+
+.preview-info h4 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+}
+
+.preview-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 16px;
+    text-align: left;
+}
+
+.preview-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.preview-value {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.content-preview {
+    background: var(--bg-tertiary);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+/* 结果区域 */
+.result-area {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+}
+
+.result-header h3 {
+    color: var(--success);
+    margin-bottom: 12px;
+}
+
+.result-stats {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* 重命名进度面板 */
+.rename-progress-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+}
+
+.rename-log {
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-tertiary);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 响应式设计扩展 */
+@media (max-width: 768px) {
+    .file-display-header,
+    .rename-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .file-actions,
+    .rename-actions {
+        justify-content: center;
+    }
+    
+    .file-list .file-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .file-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+    
+    .scan-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .modal-container {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .dialog-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+    
+    .dialog-actions .btn {
+        width: 100%;
+    }
 } 

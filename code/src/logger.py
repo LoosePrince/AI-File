@@ -71,16 +71,36 @@ class Logger:
     
     def _setup_log_directory(self) -> None:
         """创建日志目录"""
-        # 确定日志目录路径
+        # 确定基础日志目录路径
         if os.path.isabs(self.config['log_dir']):
-            self.log_dir = Path(self.config['log_dir'])
+            base_log_dir = Path(self.config['log_dir'])
         else:
             # 相对于项目根目录
             project_root = Path(__file__).parent.parent.parent
-            self.log_dir = project_root / self.config['log_dir']
+            base_log_dir = project_root / self.config['log_dir']
+        
+        # 创建基于启动时间的子目录
+        startup_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.log_dir = base_log_dir / startup_time
         
         # 创建目录
         self.log_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 创建一个符号链接指向最新的日志目录（Windows上可能需要管理员权限）
+        latest_link = base_log_dir / "latest"
+        try:
+            # 如果已存在，先删除
+            if latest_link.exists() or latest_link.is_symlink():
+                latest_link.unlink()
+            # 创建新的符号链接
+            latest_link.symlink_to(startup_time, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            # Windows上没有管理员权限或不支持符号链接时，创建一个文本文件记录最新日志目录
+            try:
+                with open(base_log_dir / "latest.txt", 'w', encoding='utf-8') as f:
+                    f.write(f"{startup_time}\n{self.log_dir}")
+            except Exception:
+                pass  # 忽略写入失败
     
     def _setup_root_logger(self) -> None:
         """配置根日志器"""
@@ -259,35 +279,192 @@ class Logger:
         else:  # ERROR or other failure status
             logger.error(f"FILE_OP - {operation.upper()}: {source}{target_str} - {error or 'Failed'}")
     
-    def get_log_files(self) -> list:
+    def get_log_files(self, include_history: bool = True) -> list:
         """
         获取所有日志文件列表
+        
+        Args:
+            include_history: 是否包含历史日志文件夹中的文件
         
         Returns:
             日志文件路径列表
         """
-        if not self.log_dir or not self.log_dir.exists():
-            return []
+        log_files = []
         
-        return [str(f) for f in self.log_dir.glob('*.log*')]
+        # 当前日志目录的文件
+        if self.log_dir and self.log_dir.exists():
+            log_files.extend([str(f) for f in self.log_dir.glob('*.log*')])
+        
+        # 历史日志文件夹的文件
+        if include_history and self.log_dir:
+            base_dir = self.log_dir.parent
+            if base_dir.exists():
+                # 查找所有日期格式的子目录
+                for subdir in base_dir.iterdir():
+                    if (subdir.is_dir() and 
+                        subdir != self.log_dir and 
+                        subdir.name != "latest" and
+                        not subdir.name.endswith('.txt')):
+                        # 检查是否是时间戳格式的目录
+                        try:
+                            datetime.strptime(subdir.name, "%Y-%m-%d_%H-%M-%S")
+                            log_files.extend([str(f) for f in subdir.glob('*.log*')])
+                        except ValueError:
+                            # 不是时间戳格式的目录，跳过
+                            continue
+        
+        return sorted(log_files)
     
-    def clear_logs(self, keep_current: bool = True) -> None:
+    def clear_logs(self, keep_current: bool = True, keep_days: int = 7) -> None:
         """
         清理日志文件
         
         Args:
-            keep_current: 是否保留当前日志文件
+            keep_current: 是否保留当前会话的日志文件
+            keep_days: 保留多少天的历史日志（0表示删除所有历史日志）
         """
-        if not self.log_dir or not self.log_dir.exists():
+        if not self.log_dir:
             return
         
-        for log_file in self.log_dir.glob('*.log*'):
-            if keep_current and not log_file.name.endswith('.1'):
-                # 保留主日志文件，删除备份文件
-                if '.' in log_file.stem and log_file.stem.split('.')[-1].isdigit():
+        base_dir = self.log_dir.parent
+        if not base_dir.exists():
+            return
+        
+        current_time = datetime.now()
+        
+        # 清理历史日志文件夹
+        for subdir in base_dir.iterdir():
+            if (subdir.is_dir() and 
+                subdir != self.log_dir and 
+                subdir.name != "latest" and
+                not subdir.name.endswith('.txt')):
+                
+                try:
+                    # 检查是否是时间戳格式的目录
+                    dir_time = datetime.strptime(subdir.name, "%Y-%m-%d_%H-%M-%S")
+                    days_diff = (current_time - dir_time).days
+                    
+                    if days_diff > keep_days:
+                        # 删除整个历史日志目录
+                        import shutil
+                        shutil.rmtree(subdir)
+                        print(f"已删除历史日志目录: {subdir.name}")
+                        
+                except ValueError:
+                    # 不是时间戳格式的目录，跳过
+                    continue
+                except Exception as e:
+                    print(f"删除日志目录失败 {subdir.name}: {e}")
+        
+        # 清理当前日志目录
+        if not keep_current and self.log_dir.exists():
+            for log_file in self.log_dir.glob('*.log*'):
+                try:
                     log_file.unlink()
-            else:
-                log_file.unlink()
+                except Exception as e:
+                    print(f"删除日志文件失败 {log_file}: {e}")
+        elif self.log_dir.exists():
+            # 只清理备份日志文件，保留主日志文件
+            for log_file in self.log_dir.glob('*.log*'):
+                if '.' in log_file.stem and log_file.stem.split('.')[-1].isdigit():
+                    try:
+                        log_file.unlink()
+                    except Exception as e:
+                        print(f"删除备份日志文件失败 {log_file}: {e}")
+    
+    def get_current_log_dir(self) -> str:
+        """
+        获取当前日志目录路径
+        
+        Returns:
+            当前日志目录的绝对路径
+        """
+        return str(self.log_dir) if self.log_dir else ""
+    
+    def get_log_directories(self) -> list:
+        """
+        获取所有历史日志目录列表
+        
+        Returns:
+            按时间排序的日志目录列表（最新的在前）
+        """
+        if not self.log_dir:
+            return []
+        
+        base_dir = self.log_dir.parent
+        if not base_dir.exists():
+            return []
+        
+        log_dirs = []
+        for subdir in base_dir.iterdir():
+            if (subdir.is_dir() and 
+                subdir.name != "latest" and
+                not subdir.name.endswith('.txt')):
+                try:
+                    # 验证是否是时间戳格式的目录
+                    datetime.strptime(subdir.name, "%Y-%m-%d_%H-%M-%S")
+                    log_dirs.append({
+                        'name': subdir.name,
+                        'path': str(subdir),
+                        'is_current': subdir == self.log_dir,
+                        'created_time': subdir.stat().st_ctime
+                    })
+                except ValueError:
+                    continue
+        
+        # 按创建时间排序，最新的在前
+        return sorted(log_dirs, key=lambda x: x['created_time'], reverse=True)
+    
+    def get_log_statistics(self) -> dict:
+        """
+        获取日志统计信息
+        
+        Returns:
+            包含日志统计信息的字典
+        """
+        stats = {
+            'current_session': {
+                'directory': self.get_current_log_dir(),
+                'files': 0,
+                'total_size': 0
+            },
+            'all_sessions': {
+                'directories': 0,
+                'files': 0,
+                'total_size': 0
+            }
+        }
+        
+        # 统计当前会话日志
+        if self.log_dir and self.log_dir.exists():
+            for log_file in self.log_dir.glob('*.log*'):
+                if log_file.is_file():
+                    stats['current_session']['files'] += 1
+                    stats['current_session']['total_size'] += log_file.stat().st_size
+        
+        # 统计所有历史日志
+        log_dirs = self.get_log_directories()
+        stats['all_sessions']['directories'] = len(log_dirs)
+        
+        for dir_info in log_dirs:
+            dir_path = Path(dir_info['path'])
+            for log_file in dir_path.glob('*.log*'):
+                if log_file.is_file():
+                    stats['all_sessions']['files'] += 1
+                    stats['all_sessions']['total_size'] += log_file.stat().st_size
+        
+        # 转换文件大小为可读格式
+        def format_size(size_bytes):
+            for unit in ['B', 'KB', 'MB', 'GB']:
+                if size_bytes < 1024:
+                    return f"{size_bytes:.1f} {unit}"
+                size_bytes /= 1024
+            return f"{size_bytes:.1f} TB"
+        
+        stats['current_session']['size_formatted'] = format_size(stats['current_session']['total_size'])
+        stats['all_sessions']['size_formatted'] = format_size(stats['all_sessions']['total_size'])
+        
+        return stats
 
 
 # 全局日志管理器实例

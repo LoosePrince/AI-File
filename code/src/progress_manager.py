@@ -20,8 +20,10 @@ from enum import Enum
 from typing import Dict, List, Optional, Callable, Any
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 
 from .logger import get_logger
+from .config_manager import ConfigManager
 
 
 class TaskStatus(Enum):
@@ -142,6 +144,9 @@ class ProgressManager:
         # 回调函数
         self.progress_callbacks: List[Callable[[str, TaskProgress], None]] = []
         self.status_callbacks: List[Callable[[str, TaskStatus], None]] = []
+        
+        # 配置管理器（可选，由 initialize_progress_manager 注入）
+        self.config_manager: Optional[ConfigManager] = None
         
         # 统计信息
         self.stats = {
@@ -389,22 +394,13 @@ class ProgressManager:
             # 创建进度回调函数
             def progress_callback(progress: TaskProgress):
                 self._notify_progress_change(task_id, progress)
-            
+
             # 执行任务
             success = handler.execute(task, progress_callback)
-            
-            # 更新最终状态
-            if success:
+
+            # 任务完成状态处理由 FileProcessingHandler 内部控制
+            if success and task.status == TaskStatus.RUNNING:
                 task.status = TaskStatus.COMPLETED
-                task.progress.percentage = 100.0
-                task.progress.current_step = "已完成"
-                self.stats['completed_tasks'] += 1
-                self.logger.info(f"任务执行成功: {task.name} (ID: {task_id})")
-            else:
-                task.status = TaskStatus.FAILED
-                self.stats['failed_tasks'] += 1
-                self.logger.warning(f"任务执行失败: {task.name} (ID: {task_id})")
-            
         except Exception as e:
             task.status = TaskStatus.FAILED
             task.error_message = str(e)
@@ -437,84 +433,132 @@ class ProgressManager:
                 self.logger.error(f"状态回调函数执行失败: {e}", exc_info=True)
 
 
-# 示例任务处理器
 class FileProcessingHandler(TaskHandler):
-    """文件处理任务处理器示例"""
-    
-    def __init__(self):
-        self.is_paused = False
-        self.is_cancelled = False
+    """文件处理任务处理器：完整的分析→分类→整理流程"""
+
+    def __init__(self, config_manager: Optional[ConfigManager] = None):
+        self.is_paused: bool = False
+        self.is_cancelled: bool = False
         self.logger = get_logger('file_processing_handler')
-    
+
+        # 延迟导入，避免循环依赖问题
+        from .file_analyzer import FileAnalyzer  # noqa: WPS433
+        from .classification_engine import ClassificationEngine  # noqa: WPS433
+
+        self.file_analyzer_cls = FileAnalyzer
+        self.classification_engine_cls = ClassificationEngine
+        self.config_manager = config_manager
+
+    # ------------------------------------------------------------------
+    # TaskHandler 接口实现
+    # ------------------------------------------------------------------
     def execute(self, task: Task, progress_callback: Callable[[TaskProgress], None]) -> bool:
-        """执行文件处理任务"""
-        files = task.progress.details.get('files', [])
+        """执行完整文件整理流水线"""
+        files: List[str] = task.progress.details.get('files', [])
         if not files:
+            self.logger.warning("任务中未提供文件列表")
             return False
-        
-        task.progress.total_steps = len(files)
+
+        # 初始化组件（共享配置管理器以确保正确读取API密钥）
+        if self.config_manager is not None:
+            file_analyzer = self.file_analyzer_cls(config_manager=self.config_manager)
+            classification_engine = self.classification_engine_cls(config_manager=self.config_manager)
+        else:
+            file_analyzer = self.file_analyzer_cls()
+            classification_engine = self.classification_engine_cls()
+
+        # 计算总步骤：分析每个文件 + 1 (分类) + 1 (整理)
+        total_steps = len(files) + 2
+        task.progress.total_steps = total_steps
         task.progress.pending_files = files.copy()
-        
-        for i, file_path in enumerate(files):
-            # 检查是否被取消或暂停
-            if self.is_cancelled:
-                self.logger.info(f"任务被取消: {task.name}")
+
+        analyses: List[Dict[str, Any]] = []
+
+        # -------------------- 步骤 1：文件分析 --------------------
+        for idx, file_path in enumerate(files, start=1):
+            # 取消/暂停检查
+            if not self._check_continue():
                 return False
-            
-            while self.is_paused and not self.is_cancelled:
-                time.sleep(0.1)
-            
-            if self.is_cancelled:
-                return False
-            
-            # 模拟文件处理
+
             try:
-                self._process_file(file_path, task, progress_callback)
-                
-                # 更新进度
-                task.progress.completed_steps = i + 1
-                task.progress.percentage = (i + 1) / len(files) * 100
-                task.progress.current_step = f"处理文件: {file_path}"
-                task.progress.processed_files.append(file_path)
-                
-                if file_path in task.progress.pending_files:
-                    task.progress.pending_files.remove(file_path)
-                
-                progress_callback(task.progress)
-                
+                result = file_analyzer.analyze_file(file_path)
+                analyses.append(result)
             except Exception as e:
-                self.logger.error(f"处理文件失败: {file_path} - {e}")
-                task.progress.failed_files.append({
-                    'file': file_path,
-                    'error': str(e)
+                self.logger.error(f"分析文件失败: {file_path} - {e}")
+                # 保存失败信息，继续后续文件
+                analyses.append({
+                    'file_info': {
+                        'filename': Path(file_path).name,
+                        'file_path': str(file_path),
+                        'error': str(e),
+                        'file_type': 'unknown',
+                    },
+                    'ai_result': None,
                 })
-        
+
+            # 更新进度
+            task.progress.completed_steps = idx
+            task.progress.current_step = f"分析文件 ({idx}/{len(files)}): {Path(file_path).name}"
+            task.progress.percentage = idx / total_steps * 100
+            task.progress.processed_files.append(file_path)
+            if file_path in task.progress.pending_files:
+                task.progress.pending_files.remove(file_path)
+
+            progress_callback(task.progress)
+
+        # -------------------- 步骤 2：AI 分类决策 --------------------
+        if not self._check_continue():
+            return False
+
+        task.progress.current_step = "AI 分类决策中..."
+        progress_callback(task.progress)
+
+        classification_results: Dict[str, Dict[str, Any]] = classification_engine.classify_files(analyses)
+
+        task.progress.completed_steps += 1
+        task.progress.percentage = task.progress.completed_steps / total_steps * 100
+        progress_callback(task.progress)
+
+        # -------------------- 结束：等待用户确认 --------------------
+        task.progress.details['classification_results'] = classification_results
+        task.progress.current_step = "分类完成，等待用户确认整理"
+        task.progress.completed_steps = total_steps  # 进度置为100%
+        task.progress.percentage = 100.0
+        progress_callback(task.progress)
+
+        # 不自动整理，由 UI 在用户确认后创建新任务
         return True
-    
-    def _process_file(self, file_path: str, task: Task, progress_callback: Callable) -> None:
-        """处理单个文件（模拟）"""
-        # 模拟处理时间
-        time.sleep(0.5)
-        self.logger.debug(f"处理文件: {file_path}")
-    
+
+    # ------------------------------------------------------------------
+    # 控制方法
+    # ------------------------------------------------------------------
     def can_pause(self) -> bool:
         return True
-    
+
     def pause(self) -> bool:
         self.is_paused = True
         self.logger.info("文件处理任务已暂停")
         return True
-    
+
     def resume(self) -> bool:
         self.is_paused = False
         self.logger.info("文件处理任务已恢复")
         return True
-    
+
     def cancel(self) -> bool:
         self.is_cancelled = True
         self.is_paused = False
         self.logger.info("文件处理任务已取消")
         return True
+
+    # ------------------------------------------------------------------
+    # 辅助
+    # ------------------------------------------------------------------
+    def _check_continue(self) -> bool:
+        """检查暂停/取消状态"""
+        while self.is_paused and not self.is_cancelled:
+            time.sleep(0.2)
+        return not self.is_cancelled
 
 
 # 全局进度管理器实例
@@ -529,12 +573,13 @@ def get_progress_manager() -> ProgressManager:
     return _progress_manager
 
 
-def initialize_progress_manager(max_workers: int = 4) -> ProgressManager:
+def initialize_progress_manager(max_workers: int = 4, config_manager: Optional[ConfigManager] = None) -> ProgressManager:
     """
     初始化全局进度管理器
     
     Args:
         max_workers: 最大工作线程数
+        config_manager: 配置管理器实例
         
     Returns:
         进度管理器实例
@@ -545,9 +590,10 @@ def initialize_progress_manager(max_workers: int = 4) -> ProgressManager:
     
     _progress_manager = ProgressManager(max_workers)
     _progress_manager.start()
+    _progress_manager.config_manager = config_manager
     
     # 注册默认处理器
-    _progress_manager.register_handler('file_processing', FileProcessingHandler())
+    _progress_manager.register_handler('file_processing', FileProcessingHandler(config_manager=config_manager))
     
     return _progress_manager
 

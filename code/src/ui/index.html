@@ -97,24 +97,85 @@
                 </div>
                 
                 <div class="content-wrapper">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-content">
-                            <div class="upload-icon">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                    <!-- 文件选择区域 -->
+                    <div class="file-selection-area">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <div class="upload-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h3>选择文件或文件夹</h3>
+                                <p>拖拽文件到此处，或点击下方按钮选择</p>
+                                <div class="upload-buttons">
+                                    <button class="btn btn-primary" id="selectFilesBtn">选择文件</button>
+                                    <button class="btn btn-secondary" id="selectFolderBtn">选择文件夹</button>
+                                    <button class="btn btn-outline" id="scanFolderBtn">扫描文件夹</button>
+                                </div>
                             </div>
-                            <h3>选择文件或文件夹</h3>
-                            <p>拖拽文件到此处，或点击下方按钮选择</p>
-                            <div class="upload-buttons">
-                                <button class="btn btn-primary" id="selectFilesBtn">选择文件</button>
-                                <button class="btn btn-secondary" id="selectFolderBtn">选择文件夹</button>
+                        </div>
+                        
+                        <!-- 文件夹扫描选项 -->
+                        <div class="scan-options" id="scanOptions" style="display: none;">
+                            <div class="scan-controls">
+                                <label>
+                                    <input type="checkbox" id="recursiveScan"> 递归扫描子文件夹
+                                </label>
+                                <label>
+                                    文件类型过滤:
+                                    <select id="fileTypeFilter">
+                                        <option value="">所有文件</option>
+                                        <option value="images">图像文件</option>
+                                        <option value="videos">视频文件</option>
+                                        <option value="documents">文档文件</option>
+                                        <option value="archives">压缩文件</option>
+                                    </select>
+                                </label>
+                                <button class="btn btn-primary" id="startScanBtn">开始扫描</button>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- 文件列表显示区域 -->
+                    <div class="file-display-area" id="fileDisplayArea" style="display: none;">
+                        <div class="file-display-header">
+                            <div class="file-stats">
+                                <span id="fileCount">已选择 0 个文件</span>
+                                <span id="totalSize">总大小: 0 B</span>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-secondary" id="selectAllBtn">全选</button>
+                                <button class="btn btn-secondary" id="deselectAllBtn">取消全选</button>
+                                <button class="btn btn-danger" id="clearFilesBtn">清空列表</button>
+                                <button class="btn btn-primary" id="startProcessingBtn">开始整理</button>
+                            </div>
+                        </div>
+                        
+                        <div class="file-list-container">
+                            <div class="file-list" id="selectedFilesList">
+                                <!-- 文件列表将在这里动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分类确认面板 -->
+                    <div class="classification-confirm-panel" id="classificationConfirmPanel" style="display: none;">
+                        <div class="panel-header">
+                            <h3>AI 分类结果</h3>
+                        </div>
+                        <div class="classification-results" id="classificationResultsContainer">
+                            <!-- 分类结果将在此处动态生成 -->
+                        </div>
+                        <div class="confirm-actions">
+                            <button class="btn btn-primary" id="confirmOrganizeBtn">确认整理</button>
+                            <button class="btn btn-secondary" id="cancelConfirmBtn" onclick="document.getElementById('classificationConfirmPanel').style.display='none';">取消</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 处理进度区域 -->
                     <div class="processing-panel" id="processingPanel" style="display: none;">
                         <div class="panel-header">
                             <h3>处理进度</h3>
@@ -126,10 +187,23 @@
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
-                        <div class="file-list" id="fileList"></div>
+                        <div class="processing-file-list" id="processingFileList"></div>
                         <div class="processing-actions">
                             <button class="btn btn-secondary" id="pauseBtn">暂停</button>
+                            <button class="btn btn-secondary" id="resumeBtn" style="display: none;">继续</button>
                             <button class="btn btn-danger" id="cancelBtn">取消</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 结果显示区域 -->
+                    <div class="result-area" id="resultArea" style="display: none;">
+                        <div class="result-header">
+                            <h3>整理完成</h3>
+                            <div class="result-stats" id="resultStats"></div>
+                        </div>
+                        <div class="result-actions">
+                            <button class="btn btn-secondary" id="viewResultBtn">查看结果</button>
+                            <button class="btn btn-primary" id="newTaskBtn">开始新任务</button>
                         </div>
                     </div>
                 </div>
@@ -143,8 +217,92 @@
                 </div>
                 
                 <div class="content-wrapper">
-                    <div class="rename-area">
-                        <p>文件重命名功能开发中...</p>
+                    <!-- 文件选择区域 -->
+                    <div class="rename-selection-area">
+                        <div class="upload-area" id="renameUploadArea">
+                            <div class="upload-content">
+                                <div class="upload-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                        <path d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37143 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73735 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h3>选择要重命名的文件</h3>
+                                <p>支持图片、文档、视频等多种文件类型</p>
+                                <div class="upload-buttons">
+                                    <button class="btn btn-primary" id="selectRenameFilesBtn">选择文件</button>
+                                    <button class="btn btn-secondary" id="selectRenameFolderBtn">选择文件夹</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 重命名文件列表 -->
+                    <div class="rename-display-area" id="renameDisplayArea" style="display: none;">
+                        <div class="rename-header">
+                            <div class="rename-stats">
+                                <span id="renameFileCount">已选择 0 个文件</span>
+                            </div>
+                            <div class="rename-actions">
+                                <button class="btn btn-secondary" id="previewAllBtn">预览全部</button>
+                                <button class="btn btn-outline" id="generateAllNamesBtn">AI批量生成</button>
+                                <button class="btn btn-primary" id="applyAllRenamesBtn">应用全部重命名</button>
+                            </div>
+                        </div>
+                        
+                        <div class="rename-list-container">
+                            <div class="rename-file-list" id="renameFilesList">
+                                <!-- 重命名文件列表将在这里动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 重命名进度 -->
+                    <div class="rename-progress-panel" id="renameProgressPanel" style="display: none;">
+                        <div class="panel-header">
+                            <h3>重命名进度</h3>
+                            <div class="progress-info">
+                                <span id="renameProgressText">准备中...</span>
+                                <span id="renameProgressPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="renameProgressFill"></div>
+                        </div>
+                        <div class="rename-log" id="renameLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 重命名对话框 -->
+            <div id="renameDialog" class="modal-overlay" style="display: none;">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>重命名文件</h3>
+                        <button class="modal-close" onclick="closeRenameDialog()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-content" id="renameDialogContent">
+                        <!-- 对话框内容将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 文件预览对话框 -->
+            <div id="previewDialog" class="modal-overlay" style="display: none;">
+                <div class="modal-container preview-modal">
+                    <div class="modal-header">
+                        <h3>文件预览</h3>
+                        <button class="modal-close" onclick="closePreviewDialog()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-content" id="previewDialogContent">
+                        <!-- 预览内容将在这里动态生成 -->
                     </div>
                 </div>
             </div>
