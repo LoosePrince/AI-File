@@ -2,3 +2,8 @@
 old
 img
 out
+.venv
+__pycache__
+*.pyc
+*.log
+logs

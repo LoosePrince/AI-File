@@ -1,0 +1,44 @@
+# 文脉通 (DocStream Navigator) 依赖包
+# 安装方法: pip install -r requirements.txt
+
+# 核心框架
+pywebview==4.4.0          # 现代化桌面应用界面框架 (固定版本以避免兼容性问题)
+
+# AI API调用
+openai>=1.0.0            # OpenAI API客户端
+httpx>=0.24.0            # 异步HTTP客户端
+requests>=2.28.0         # HTTP请求库
+
+# 配置管理
+configparser             # 配置文件解析（Python内置）
+
+# 文件处理
+pillow>=10.0.0           # 图像处理
+opencv-python>=4.8.0     # 计算机视觉库
+python-magic>=0.4.27     # 文件类型检测
+
+# 文档处理
+PyPDF2>=3.0.0           # PDF文件处理
+python-docx>=0.8.11     # Word文档处理
+openpyxl>=3.1.0         # Excel文件处理
+python-pptx>=0.6.21     # PowerPoint文件处理
+
+# 压缩文件处理
+zipfile38               # ZIP文件处理增强
+rarfile>=4.0            # RAR文件处理
+
+# 视频处理（可选）
+moviepy>=1.0.3          # 视频文件处理
+
+# 系统相关
+psutil>=5.9.0           # 系统进程和资源监控
+pathlib                 # 路径处理（Python内置）
+
+# 开发工具（可选）
+pytest>=7.0.0           # 单元测试框架
+black>=23.0.0           # 代码格式化
+flake8>=6.0.0           # 代码质量检查
+
+# 打包工具（可选）
+pyinstaller>=5.13.0     # 可执行文件打包
+cx-freeze>=6.15.0       # 可执行文件打包（替代方案） 
