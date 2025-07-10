@@ -893,6 +893,16 @@ html, body {
     background: var(--bg-hover);
 }
 
+/* 分类完成的文件项样式 */
+.file-list .file-item.classified {
+    background: rgba(103, 194, 58, 0.05);
+    border-left: 3px solid var(--success);
+}
+
+.file-list .file-item.classified:hover {
+    background: rgba(103, 194, 58, 0.1);
+}
+
 .file-checkbox {
     margin-right: 12px;
     accent-color: var(--accent-primary);
@@ -929,6 +939,36 @@ html, body {
     background: var(--bg-accent);
     padding: 2px 6px;
     border-radius: var(--radius-sm);
+}
+
+/* 分类结果显示 */
+.classification-result {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--success);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.new-path-label {
+    color: var(--success);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.new-path-value {
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', monospace;
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-primary);
+    word-break: break-all;
+    flex: 1;
 }
 
 .file-actions {
@@ -1353,6 +1393,25 @@ html, body {
     }
     
     .dialog-actions .btn {
+        width: 100%;
+    }
+    
+    /* 移动端分类结果样式优化 */
+    .classification-result {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 6px 10px;
+    }
+    
+    .new-path-label {
+        font-size: 12px;
+    }
+    
+    .new-path-value {
+        font-size: 12px;
+        padding: 1px 4px;
+        word-break: break-all;
         width: 100%;
     }
 } 

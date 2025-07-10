@@ -104,10 +104,7 @@ class DocStreamApp {
             this.cancelProcessing();
         });
         
-        // 分类确认按钮
-        document.getElementById('confirmOrganizeBtn')?.addEventListener('click', () => {
-            this.confirmOrganize();
-        });
+
     }
     
     // 页面切换
@@ -702,6 +699,9 @@ class DocStreamApp {
             this.selectedFiles = [];
             document.getElementById('fileDisplayArea').style.display = 'none';
             
+            // 清除分类结果
+            this.clearClassificationResults();
+            
             if (window.pywebview && window.pywebview.api) {
                 await window.pywebview.api.clear_file_list();
             }
@@ -717,6 +717,9 @@ class DocStreamApp {
             this.showNotification('请先选择要处理的文件', 'warning');
             return;
         }
+        
+        // 清除之前的分类结果
+        this.clearClassificationResults();
         
         await this.startProcessing(selectedPaths);
     }
@@ -1035,23 +1038,70 @@ class DocStreamApp {
     handleClassificationReady(data) {
         console.log('收到分类结果', data);
         this.classificationResults = data;
+        
+        // 更新文件列表显示分类结果，而不是显示确认面板
+        this.updateFileListWithClassification(data.results);
+        
+        // 显示确认整理按钮
+        this.showClassificationActions();
+        
         this.showNotification('AI分类已完成，请确认整理', 'info');
-
-        // 显示确认面板
-        const confirmPanel = document.getElementById('classificationConfirmPanel');
-        if (confirmPanel) {
-            confirmPanel.style.display = 'block';
-            // 渲染结果列表
-            const container = document.getElementById('classificationResultsContainer');
-            if (container) {
-                const results = data.results || {};
-                const html = Object.entries(results).map(([filePath, info]) => {
-                    const category = info.category || '未知';
-                    const sub = info.subcategory ? ` / ${info.subcategory}` : '';
-                    return `<div class="classification-item"><span class="file-path">${filePath}</span><span class="category">${category}${sub}</span></div>`;
-                }).join('');
-                container.innerHTML = html || '<p>未解析到分类结果</p>';
+    }
+    
+    // 更新文件列表显示分类结果
+    updateFileListWithClassification(results) {
+        const fileItems = document.querySelectorAll('.file-item');
+        
+        fileItems.forEach((item) => {
+            const filePath = item.dataset.path;
+            if (results && results[filePath]) {
+                const classification = results[filePath];
+                const category = classification.category || '未知';
+                const subcategory = classification.subcategory ? ` / ${classification.subcategory}` : '';
+                const newPath = classification.new_path || `${category}${subcategory}`;
+                
+                // 查找或创建新路径显示元素
+                let pathDisplay = item.querySelector('.classification-result');
+                if (!pathDisplay) {
+                    pathDisplay = document.createElement('div');
+                    pathDisplay.className = 'classification-result';
+                    
+                    // 插入到文件信息之后
+                    const fileInfo = item.querySelector('.file-info');
+                    if (fileInfo) {
+                        fileInfo.appendChild(pathDisplay);
+                    }
+                }
+                
+                pathDisplay.innerHTML = `<span class="new-path-label">新路径：</span><span class="new-path-value">${newPath}</span>`;
+                
+                // 添加分类完成的样式
+                item.classList.add('classified');
             }
+        });
+    }
+    
+    // 显示分类操作按钮
+    showClassificationActions() {
+        // 在文件操作区域添加确认整理按钮
+        const fileActions = document.querySelector('.file-actions');
+        if (fileActions) {
+            // 先移除已存在的确认按钮
+            const existingBtn = fileActions.querySelector('#confirmOrganizeBtn');
+            if (existingBtn) {
+                existingBtn.remove();
+            }
+            
+            // 添加新的确认整理按钮
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'confirmOrganizeBtn';
+            confirmBtn.className = 'btn btn-primary';
+            confirmBtn.textContent = '确认整理';
+            confirmBtn.addEventListener('click', () => {
+                this.confirmOrganize();
+            });
+            
+            fileActions.appendChild(confirmBtn);
         }
     }
     
@@ -1066,7 +1116,13 @@ class DocStreamApp {
             const resp = await window.pywebview.api.confirm_organize(this.classificationResults.task_id, targetDir || null);
             if (resp && resp.success) {
                 this.showNotification('文件整理完成', 'success');
-                document.getElementById('classificationConfirmPanel').style.display = 'none';
+                // 移除确认按钮并重置分类状态
+                const confirmBtn = document.getElementById('confirmOrganizeBtn');
+                if (confirmBtn) {
+                    confirmBtn.remove();
+                }
+                // 清除分类结果显示
+                this.clearClassificationResults();
             } else {
                 this.showNotification(resp?.message || '文件整理失败', 'error');
             }
@@ -1074,6 +1130,19 @@ class DocStreamApp {
             console.error(e);
             this.showNotification('文件整理失败', 'error');
         }
+    }
+    
+    // 清除分类结果显示
+    clearClassificationResults() {
+        const fileItems = document.querySelectorAll('.file-item');
+        fileItems.forEach((item) => {
+            item.classList.remove('classified');
+            const classificationResult = item.querySelector('.classification-result');
+            if (classificationResult) {
+                classificationResult.remove();
+            }
+        });
+        this.classificationResults = null;
     }
 }
 
