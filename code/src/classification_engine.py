@@ -122,8 +122,24 @@ class ClassificationEngine:
         Returns:
             文件操作统计结果
         """
+        # 若包含用户编辑的 suggested_path，优先按照 suggested_path 组织
+        adjusted_results: Dict[str, Dict[str, Any]] = {}
+        for file_path, info in classification_results.items():
+            info = dict(info) if info else {}
+            # 兼容 new_path/suggested_path
+            if info.get('suggested_path'):
+                info['category'] = info.get('category', 'Custom')
+                # 将 suggested_path 拆分为 category/subcategory（可选）
+                sp = str(info['suggested_path']).strip('/\\')
+                parts = [p for p in sp.replace('\\', '/').split('/') if p]
+                if len(parts) >= 1:
+                    info['category'] = parts[0]
+                if len(parts) >= 2:
+                    info['subcategory'] = '/'.join(parts[1:])
+            adjusted_results[file_path] = info
+
         return self.file_operation_manager.organize_files_by_classification(
-            classification_results, target_root, operation_mode
+            adjusted_results, target_root, operation_mode
         )
 
     # ------------------------------------------------------------------

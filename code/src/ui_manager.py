@@ -3,6 +3,7 @@ import os
 import json
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Dict, Any, List, Optional
 from threading import Thread
 
@@ -53,6 +54,9 @@ class UIManager:
         
         # 存储待确认的分类结果 task_id -> results
         self._pending_classifications: Dict[str, Dict[str, Any]] = {}
+
+        # WebView 就绪标记（在窗口加载完成后置为 True）
+        self._webview_ready: bool = False
         
         self.logger.info("UI管理器初始化完成")
     
@@ -62,23 +66,55 @@ class UIManager:
             # 检查WebView是否可用
             import webview
             self.logger.info("创建主窗口...")
+            self.logger.info(f"加载前端页面: {self.index_path}")
             
             if not self.index_path.exists():
                 error_msg = f"UI文件不存在: {self.index_path}"
                 self.logger.error(error_msg)
                 raise FileNotFoundError(error_msg)
             
-            # 创建webview窗口
-            self.window = webview.create_window(
+            # 构造精简且安全的 js_api，仅暴露需要给前端调用的可调用方法，避免递归遍历复杂对象
+            api = SimpleNamespace(
+                get_config=self.get_config,
+                save_config=self.save_config,
+                validate_api_config=self.validate_api_config,
+                select_files=self.select_files,
+                select_folder=self.select_folder,
+                scan_folder_for_files=self.scan_folder_for_files,
+                get_selected_files=self.get_selected_files,
+                generate_file_list_html=self.generate_file_list_html,
+                remove_file_from_list=self.remove_file_from_list,
+                clear_file_list=self.clear_file_list,
+                start_processing=self.start_processing,
+                pause_processing=self.pause_processing,
+                resume_processing=self.resume_processing,
+                cancel_processing=self.cancel_processing,
+                get_task_status=self.get_task_status,
+                get_progress_statistics=self.get_progress_statistics,
+                minimize_window=self.minimize_window,
+                toggle_maximize=self.toggle_maximize,
+                close_window=self.close_window,
+                preview_file=self.preview_file,
+                get_rename_dialog_html=self.get_rename_dialog_html,
+                generate_ai_filename_suggestions=self.generate_ai_filename_suggestions,
+                rename_file=self.rename_file,
+                get_log_files=self.get_log_files,
+                clear_logs=self.clear_logs,
+                get_classification_results=self.get_classification_results,
+                confirm_organize=self.confirm_organize,
+            )
+
+            # 创建webview窗口（不保存在实例属性，避免 js_api 递归扫描 window 对象导致类型比较异常）
+            window = webview.create_window(
                 title="文脉通 - DocStream Navigator",
-                url=str(self.index_path),
+                url=self.index_path.resolve().as_uri(),
                 width=1200,
                 height=800,
                 min_size=(800, 600),
                 resizable=True,
                 maximized=False,
                 on_top=False,
-                js_api=self
+                js_api=api
             )
             
             self.logger.info("主窗口创建完成")
@@ -93,17 +129,19 @@ class UIManager:
     def start(self) -> None:
         """启动UI"""
         try:
-            if not self.window:
+            # 若未创建窗口则回退到控制台模式
+            if len(webview.windows) == 0:
                 self.logger.warning("窗口未创建，尝试启动控制台模式...")
                 self._run_console_mode()
                 return
             
             self.logger.info("启动WebView界面...")
             
-            # 启动webview
+            # 启动webview，等待窗口和前端完成加载后再标记就绪
             webview.start(
+                func=self._on_webview_ready,
                 debug=False,  # 生产环境设为False
-                private_mode=False,
+                private_mode=True,
                 storage_path=os.path.join(os.path.expanduser("~"), ".docstream")
             )
             
@@ -113,6 +151,22 @@ class UIManager:
             self.logger.error(f"WebView启动失败: {e}")
             self.logger.info("回退到控制台模式...")
             self._run_console_mode()
+
+    def _on_webview_ready(self):
+        """WebView GUI 线程启动后回调，标记前端可接收消息"""
+        try:
+            # 可选：等待窗口 events.loaded（若可用）
+            try:
+                if len(webview.windows) > 0:
+                    win = webview.windows[0]
+                    # 某些实现提供 events.loaded 事件
+                    events = getattr(win, 'events', None)
+                    if events and hasattr(events, 'loaded'):
+                        events.loaded.wait(timeout=5)
+            except Exception:
+                pass
+        finally:
+            self._webview_ready = True
     
     def _run_console_mode(self):
         """运行控制台模式"""
@@ -561,7 +615,7 @@ class UIManager:
     def minimize_window(self):
         """最小化窗口"""
         try:
-            if self.window and len(webview.windows) > 0:
+            if len(webview.windows) > 0:
                 webview.windows[0].minimize()
                 return {'success': True}
             return {'success': False}
@@ -572,7 +626,7 @@ class UIManager:
     def toggle_maximize(self):
         """切换最大化/还原窗口"""
         try:
-            if self.window and len(webview.windows) > 0:
+            if len(webview.windows) > 0:
                 if self.is_maximized:
                     webview.windows[0].restore()
                     self.is_maximized = False
@@ -588,7 +642,7 @@ class UIManager:
     def close_window(self):
         """关闭窗口"""
         try:
-            if self.window and len(webview.windows) > 0:
+            if len(webview.windows) > 0:
                 webview.windows[0].destroy()
                 return {'success': True}
             return {'success': False}
@@ -820,7 +874,8 @@ class UIManager:
                         'task_id': task_id,
                         'results': self._pending_classifications[task_id]
                     })
-                    webview.windows[0].evaluate_js(f"window.onClassificationReady({js_payload})")
+                    if self._webview_ready and len(webview.windows) > 0:
+                        webview.windows[0].evaluate_js(f"window.onClassificationReady({js_payload})")
             
         except Exception as e:
             self.logger.error(f"处理进度更新回调失败: {e}", exc_info=True)
@@ -867,7 +922,7 @@ class UIManager:
             progress: 进度信息
         """
         try:
-            if self.window and len(webview.windows) > 0:
+            if self._webview_ready and len(webview.windows) > 0:
                 # 调用前端JavaScript函数
                 webview.windows[0].evaluate_js(f"window.updateProgress({json.dumps(progress)})")
         except Exception as e:
@@ -882,7 +937,7 @@ class UIManager:
             type: 通知类型 (info, success, warning, error)
         """
         try:
-            if self.window and len(webview.windows) > 0:
+            if self._webview_ready and len(webview.windows) > 0:
                 # 调用前端JavaScript函数
                 webview.windows[0].evaluate_js(f"window.showNotification('{message}', '{type}')")
         except Exception as e:
@@ -1184,7 +1239,7 @@ class UIManager:
             return {'success': False, 'message': '未找到分类结果'}
         return {'success': True, 'results': results}
 
-    def confirm_organize(self, task_id: str, target_dir: str = None):
+    def confirm_organize(self, task_id: str, target_dir: str = None, edited_paths: dict = None):
         """前端确认整理，创建整理任务"""
         try:
             from .classification_engine import ClassificationEngine
@@ -1192,6 +1247,18 @@ class UIManager:
                 return {'success': False, 'message': '没有待确认的分类结果'}
 
             classification_results = self._pending_classifications.pop(task_id)
+
+            # 合并用户编辑的目标路径（相对路径）
+            if edited_paths and isinstance(edited_paths, dict):
+                for file_path, rel_path in edited_paths.items():
+                    try:
+                        rel_path_str = str(rel_path).strip()
+                        if not rel_path_str:
+                            continue
+                        if file_path in classification_results:
+                            classification_results[file_path]['suggested_path'] = rel_path_str
+                    except Exception:
+                        continue
 
             if not target_dir:
                 # 默认同级 organized 目录

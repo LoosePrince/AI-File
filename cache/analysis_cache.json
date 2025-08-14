@@ -535,7 +535,7 @@
       "size_human": "3.5 MB",
       "created_time": "2025-07-03T23:43:13.968734",
       "modified_time": "2022-08-08T16:24:02",
-      "accessed_time": "2025-07-04T17:13:59.574995",
+      "accessed_time": "2025-07-10T13:48:15.118635",
       "file_hash": "7dd4e3935233389ec295563c919c9f8c",
       "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "paragraph_count": 25,
@@ -549,7 +549,7 @@
         "modified": "2022-08-08T08:24:00+00:00"
       },
       "file_type": "document",
-      "extraction_time": "2025-07-04T17:13:59.607370",
+      "extraction_time": "2025-07-10T13:48:15.140273",
       "file_path": "D:\\Win\\Documents\\GitHub\\AI-File\\img\\小密花乡.docx"
     },
     "ai_result": null

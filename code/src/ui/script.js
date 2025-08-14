@@ -4,6 +4,8 @@ class DocStreamApp {
         this.currentPage = 'file-organize';
         this.config = {};
         this.isProcessing = false;
+        this.inputReady = false; // 是否已选择输入（文件或目录）
+        this.outputDir = null;   // 选择的输出目录
         this.selectedFiles = [];
         this.renameFiles = [];
         this.currentRenameIndex = -1;
@@ -16,6 +18,13 @@ class DocStreamApp {
         this.setupEventListeners();
         this.loadConfig();
         this.updateUI();
+        // 初始化时根据输入/输出状态决定“开始整理”按钮是否可见
+        if (typeof this.updateStartButtonVisibility === 'function') {
+            this.updateStartButtonVisibility();
+        }
+        if (typeof this.updateFileActionButtons === 'function') {
+            this.updateFileActionButtons();
+        }
     }
     
     // 设置事件监听器
@@ -36,6 +45,11 @@ class DocStreamApp {
         
         document.getElementById('selectFolderBtn')?.addEventListener('click', () => {
             this.selectFolder();
+        });
+
+        // 输出目录选择按钮
+        document.getElementById('selectOutputDirBtn')?.addEventListener('click', () => {
+            this.selectOutputDir();
         });
         
         // 扫描文件夹按钮
@@ -260,6 +274,8 @@ class DocStreamApp {
                     if (result && result.success) {
                         this.selectedFiles = result.files || [];
                         this.displaySelectedFiles();
+                        this.inputReady = this.selectedFiles.length > 0;
+                        this.updateStartButtonVisibility();
                         this.showNotification(`成功选择 ${this.selectedFiles.length} 个文件`, 'success');
                     } else {
                         this.showNotification('获取文件信息失败', 'error');
@@ -291,6 +307,8 @@ class DocStreamApp {
                     if (result && result.success) {
                         this.selectedFiles = result.files || [];
                         this.displaySelectedFiles();
+                        this.inputReady = this.selectedFiles.length > 0;
+                        this.updateStartButtonVisibility();
                         this.showNotification(`扫描完成，找到 ${this.selectedFiles.length} 个文件`, 'success');
                     } else {
                         this.showNotification(result?.message || '扫描文件夹失败', 'error');
@@ -302,6 +320,27 @@ class DocStreamApp {
         } catch (error) {
             console.error('选择文件夹失败:', error);
             this.showNotification('选择文件夹失败', 'error');
+        }
+    }
+    
+    // 选择输出目录
+    async selectOutputDir() {
+        try {
+            if (window.pywebview && window.pywebview.api) {
+                const result = await window.pywebview.api.select_folder();
+                if (result && result.success && result.folder) {
+                    this.outputDir = result.folder;
+                    const label = document.getElementById('selectedOutputDir');
+                    if (label) label.textContent = this.outputDir;
+                    this.updateStartButtonVisibility();
+                    this.showNotification('输出目录已选择', 'success');
+                } else {
+                    this.showNotification(result?.message || '未选择输出目录', 'warning');
+                }
+            }
+        } catch (e) {
+            console.error('选择输出目录失败:', e);
+            this.showNotification('选择输出目录失败', 'error');
         }
     }
     
@@ -326,14 +365,33 @@ class DocStreamApp {
             
             const files = Array.from(e.dataTransfer.files);
             if (files.length > 0) {
-                this.startProcessing(files.map(f => f.path || f.name));
+                const paths = files.map(f => f.path || f.name);
+                // 未选择输出目录时，不允许直接开始，提示用户先选择输出目录
+                if (!this.outputDir) {
+                    this.inputReady = true;
+                    if (typeof this.updateStartButtonVisibility === 'function') {
+                        this.updateStartButtonVisibility();
+                    }
+                    this.showNotification('请先选择输出目录，然后再开始整理', 'warning');
+                    return;
+                }
+                this.startProcessing(paths);
             }
         });
     }
     
     // 开始处理文件
     async startProcessing(files) {
+        // 二次校验：没有输出目录则不允许开始
+        if (!this.outputDir) {
+            this.showNotification('请先选择输出目录', 'warning');
+            return;
+        }
         this.isProcessing = true;
+        // 隐藏文件操作按钮
+        if (typeof this.updateFileActionButtons === 'function') {
+            this.updateFileActionButtons();
+        }
         
         // 显示处理面板
         document.getElementById('uploadArea').style.display = 'none';
@@ -449,7 +507,11 @@ class DocStreamApp {
         document.getElementById('progressFill').style.width = '0%';
         document.getElementById('progressText').textContent = '准备中...';
         document.getElementById('progressPercent').textContent = '0%';
-        document.getElementById('fileList').innerHTML = '';
+        const listEl = document.getElementById('processingFileList');
+        if (listEl) listEl.innerHTML = '';
+        if (typeof this.updateFileActionButtons === 'function') {
+            this.updateFileActionButtons();
+        }
     }
     
     // 更新处理进度
@@ -494,14 +556,26 @@ class DocStreamApp {
                     </div>
                 `;
             }).join('');
-            
-            document.getElementById('fileList').innerHTML = fileListHtml;
+
+            const listContainer = document.getElementById('processingFileList');
+            if (listContainer) {
+                listContainer.innerHTML = fileListHtml;
+            }
         }
+        
+        // 根据进度是否完成，控制暂停/取消按钮可见性
+        const pauseBtn = document.getElementById('pauseBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        if (resumeBtn) resumeBtn.style.display = 'none';
+        const inProgress = !(progress.completed || progress.percentage >= 100);
+        if (pauseBtn) pauseBtn.style.display = inProgress ? 'inline-block' : 'none';
+        if (cancelBtn) cancelBtn.style.display = inProgress ? 'inline-block' : 'none';
         
         // 若包含分类结果标记，自动弹出确认面板
         if (progress.classification_results && !this.classificationResults) {
             // 主动向后端取一次详细结果
-            window.pywebview.api.get_classification_results(progress.task_id)
+            window.pywebview?.api?.get_classification_results(progress.task_id)
                 .then(res => {
                     if (res && res.success) {
                         this.handleClassificationReady({task_id: progress.task_id, results: res.results});
@@ -707,6 +781,11 @@ class DocStreamApp {
             }
             
             this.showNotification('文件列表已清空', 'success');
+            // 输入清空后，同步更新按钮
+            this.inputReady = false;
+            if (typeof this.updateStartButtonVisibility === 'function') {
+                this.updateStartButtonVisibility();
+            }
         }
     }
     
@@ -715,6 +794,10 @@ class DocStreamApp {
         const selectedPaths = this.getSelectedFilePaths();
         if (selectedPaths.length === 0) {
             this.showNotification('请先选择要处理的文件', 'warning');
+            return;
+        }
+        if (!this.outputDir) {
+            this.showNotification('请先选择输出目录', 'warning');
             return;
         }
         
@@ -739,6 +822,8 @@ class DocStreamApp {
             if (result && result.success) {
                 this.selectedFiles.splice(index, 1);
                 this.displaySelectedFiles();
+                this.inputReady = this.selectedFiles.length > 0;
+                this.updateStartButtonVisibility();
                 this.showNotification(result.message, 'success');
             }
         }
@@ -784,10 +869,14 @@ class DocStreamApp {
         html += '</div>';
         html += '</div>';
         
-        // 内容预览
+        // 内容预览（转义，避免乱码与注入问题）
         if (preview.content_preview) {
+            const escaped = (preview.content_preview + '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
             html += '<div class="content-preview">';
-            html += preview.content_preview;
+            html += escaped;
             html += '</div>';
         }
         
@@ -1046,6 +1135,7 @@ class DocStreamApp {
         this.showClassificationActions();
         
         this.showNotification('AI分类已完成，请确认整理', 'info');
+        // 分类完成后，保持选择区域隐藏，直至用户明确操作
     }
     
     // 更新文件列表显示分类结果
@@ -1058,7 +1148,7 @@ class DocStreamApp {
                 const classification = results[filePath];
                 const category = classification.category || '未知';
                 const subcategory = classification.subcategory ? ` / ${classification.subcategory}` : '';
-                const newPath = classification.new_path || `${category}${subcategory}`;
+                const newPath = classification.suggested_path || classification.new_path || `${category}${subcategory}`;
                 
                 // 查找或创建新路径显示元素
                 let pathDisplay = item.querySelector('.classification-result');
@@ -1073,12 +1163,59 @@ class DocStreamApp {
                     }
                 }
                 
-                pathDisplay.innerHTML = `<span class="new-path-label">新路径：</span><span class="new-path-value">${newPath}</span>`;
+                pathDisplay.innerHTML = `<span class="new-path-label">新路径：</span><span class="new-path-value">${newPath}</span><button class="btn btn-outline" style="padding:2px 8px; font-size:12px; margin-left:8px;" data-path-edit="${encodeURIComponent(filePath)}">编辑</button>`;
                 
                 // 添加分类完成的样式
                 item.classList.add('classified');
             }
         });
+        // 绑定编辑按钮事件
+        document.querySelectorAll('button[data-path-edit]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filePath = decodeURIComponent(btn.getAttribute('data-path-edit'));
+                this.showPathEditDialog(filePath);
+            });
+        });
+    }
+
+    // 展示路径编辑对话框
+    showPathEditDialog(filePath) {
+        this._editingPathFile = filePath;
+        const dialog = document.getElementById('pathEditDialog');
+        const input = document.getElementById('pathEditInput');
+        // 预填现有建议路径
+        const fileItem = [...document.querySelectorAll('.file-item')].find(el => el.dataset.path === filePath);
+        if (fileItem) {
+            const valueEl = fileItem.querySelector('.classification-result .new-path-value');
+            if (valueEl) input.value = valueEl.textContent || '';
+        }
+        dialog.style.display = 'flex';
+    }
+
+    // 确认修改目标路径
+    confirmEditTargetPath() {
+        const dialog = document.getElementById('pathEditDialog');
+        const input = document.getElementById('pathEditInput');
+        const newPath = (input.value || '').trim();
+        if (!this._editingPathFile) {
+            if (dialog) dialog.style.display = 'none';
+            return;
+        }
+        // 更新界面显示
+        const fileItem = Array.from(document.querySelectorAll('.file-item')).find(el => el.dataset.path === this._editingPathFile);
+        if (fileItem) {
+            const valueEl = fileItem.querySelector('.classification-result .new-path-value');
+            if (valueEl) valueEl.textContent = newPath || valueEl.textContent;
+        }
+        // 将用户修改缓存入 classificationResults 以便确认整理使用
+        if (!this.classificationResults || !this.classificationResults.results) {
+            this.classificationResults = this.classificationResults || { task_id: '', results: {} };
+        }
+        const entry = this.classificationResults.results[this._editingPathFile] || {};
+        entry.suggested_path = newPath;
+        this.classificationResults.results[this._editingPathFile] = entry;
+        if (dialog) dialog.style.display = 'none';
+        this.showNotification('目标路径已更新', 'success');
     }
     
     // 显示分类操作按钮
@@ -1091,6 +1228,10 @@ class DocStreamApp {
             if (existingBtn) {
                 existingBtn.remove();
             }
+            const existingCancel = fileActions.querySelector('#cancelOrganizeBtn');
+            if (existingCancel) {
+                existingCancel.remove();
+            }
             
             // 添加新的确认整理按钮
             const confirmBtn = document.createElement('button');
@@ -1101,7 +1242,30 @@ class DocStreamApp {
                 this.confirmOrganize();
             });
             
+            // 添加取消整理按钮
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelOrganizeBtn';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = '取消整理';
+            cancelBtn.style.marginLeft = '8px';
+            cancelBtn.addEventListener('click', () => {
+                const cBtn = document.getElementById('confirmOrganizeBtn');
+                if (cBtn) cBtn.remove();
+                cancelBtn.remove();
+                this.clearClassificationResults();
+                document.getElementById('uploadArea').style.display = 'block';
+                this.updateStartButtonVisibility();
+                this.showNotification('已取消整理', 'warning');
+                // 取消整理后，隐藏进度区域并恢复文件操作按钮
+                document.getElementById('processingPanel').style.display = 'none';
+                this.isProcessing = false;
+                if (typeof this.updateFileActionButtons === 'function') {
+                    this.updateFileActionButtons();
+                }
+            });
+
             fileActions.appendChild(confirmBtn);
+            fileActions.appendChild(cancelBtn);
         }
     }
     
@@ -1111,9 +1275,21 @@ class DocStreamApp {
             this.showNotification('未找到分类结果', 'warning');
             return;
         }
-        const targetDir = prompt('请输入目标目录(留空则自动创建 organized):', '');
+        const targetDir = this.outputDir || prompt('请输入目标目录(留空则自动创建 organized):', '');
+        // 展示全屏遮罩，提示正在整理
+        const overlay = document.getElementById('organizeOverlay');
+        if (overlay) overlay.style.display = 'flex';
         try {
-            const resp = await window.pywebview.api.confirm_organize(this.classificationResults.task_id, targetDir || null);
+            // 汇总用户编辑过的路径映射：{ file_path: suggested_path }
+            const edited = {};
+            if (this.classificationResults && this.classificationResults.results) {
+                Object.entries(this.classificationResults.results).forEach(([fp, v]) => {
+                    if (v && v.suggested_path && String(v.suggested_path).trim()) {
+                        edited[fp] = String(v.suggested_path).trim();
+                    }
+                });
+            }
+            const resp = await window.pywebview.api.confirm_organize(this.classificationResults.task_id, targetDir || null, edited);
             if (resp && resp.success) {
                 this.showNotification('文件整理完成', 'success');
                 // 移除确认按钮并重置分类状态
@@ -1121,14 +1297,30 @@ class DocStreamApp {
                 if (confirmBtn) {
                     confirmBtn.remove();
                 }
+                const cancelBtn = document.getElementById('cancelOrganizeBtn');
+                if (cancelBtn) {
+                    cancelBtn.remove();
+                }
                 // 清除分类结果显示
                 this.clearClassificationResults();
+                // 恢复选择区域
+                document.getElementById('uploadArea').style.display = 'block';
+                this.updateStartButtonVisibility();
+                // 确认整理后，隐藏进度区域并恢复文件操作按钮
+                document.getElementById('processingPanel').style.display = 'none';
+                this.isProcessing = false;
+                if (typeof this.updateFileActionButtons === 'function') {
+                    this.updateFileActionButtons();
+                }
             } else {
                 this.showNotification(resp?.message || '文件整理失败', 'error');
             }
         } catch (e) {
             console.error(e);
             this.showNotification('文件整理失败', 'error');
+        } finally {
+            // 保险兜底：无论成功失败都关闭遮罩
+            if (overlay) overlay.style.display = 'none';
         }
     }
     
@@ -1143,6 +1335,29 @@ class DocStreamApp {
             }
         });
         this.classificationResults = null;
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) uploadArea.style.display = 'block';
+        this.updateStartButtonVisibility();
+    }
+
+    // 控制“开始整理”按钮显示：需要同时具备输入与输出
+    updateStartButtonVisibility() {
+        const btn = document.getElementById('startProcessingBtn');
+        if (!btn) return;
+        const canStart = this.inputReady && !!this.outputDir && !this.isProcessing;
+        btn.style.display = canStart ? 'inline-block' : 'none';
+    }
+
+    // 控制文件操作按钮（清空列表/开始整理）显示
+    updateFileActionButtons() {
+        const clearBtn = document.getElementById('clearFilesBtn');
+        if (clearBtn) {
+            clearBtn.style.display = this.isProcessing ? 'none' : 'inline-block';
+        }
+        // 开始按钮的显示由 updateStartButtonVisibility 统一管理
+        if (typeof this.updateStartButtonVisibility === 'function') {
+            this.updateStartButtonVisibility();
+        }
     }
 }
 
@@ -1195,6 +1410,8 @@ let app;
 // 等待页面加载完成后初始化应用
 document.addEventListener('DOMContentLoaded', function() {
     app = new DocStreamApp();
+    // 确保全局可访问，供内联 onclick 使用
+    try { window.app = app; } catch (e) {}
     
     // 等待pywebview API准备就绪
     function waitForPywebview() {

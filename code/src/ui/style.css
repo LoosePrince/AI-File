@@ -835,6 +835,20 @@ html, body {
     overflow: hidden;
 }
 
+/* 提升文件整理列表区域高度并启用自适应布局，仅影响文件整理页面 */
+.file-display-area {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+}
+
+/* 文件整理列表容器填充剩余空间并滚动 */
+.file-display-area .file-list-container {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .file-display-header,
 .rename-header {
     display: flex;
@@ -872,7 +886,7 @@ html, body {
 /* 文件列表容器 */
 .file-list-container,
 .rename-list-container {
-    max-height: 400px;
+    max-height: 800px;
     overflow-y: auto;
 }
 
@@ -880,7 +894,7 @@ html, body {
 .file-list .file-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border-secondary);
     transition: var(--transition-fast);
 }
@@ -909,9 +923,9 @@ html, body {
 }
 
 .file-icon {
-    font-size: 20px;
-    margin-right: 12px;
-    width: 24px;
+    font-size: 18px;
+    margin-right: 10px;
+    width: 20px;
     text-align: center;
 }
 
@@ -923,13 +937,13 @@ html, body {
 .file-name {
     font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     word-break: break-all;
 }
 
 .file-details {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     font-size: 12px;
     color: var(--text-muted);
 }
@@ -944,11 +958,11 @@ html, body {
 /* 分类结果显示 */
 .classification-result {
     margin-top: 8px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     background: var(--bg-tertiary);
     border: 1px solid var(--success);
     border-radius: var(--radius-md);
-    font-size: 13px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -978,7 +992,7 @@ html, body {
 }
 
 .file-actions .btn {
-    padding: 6px 12px;
+    padding: 4px 10px;
     font-size: 12px;
     white-space: nowrap;
 }

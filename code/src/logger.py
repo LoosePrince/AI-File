@@ -15,9 +15,10 @@ import logging
 import logging.handlers
 import os
 import sys
+import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any
-from datetime import datetime
+from typing import Optional, Dict, Any, List
+from datetime import datetime, timedelta
 
 
 class Logger:
@@ -101,6 +102,13 @@ class Logger:
                     f.write(f"{startup_time}\n{self.log_dir}")
             except Exception:
                 pass  # 忽略写入失败
+
+        # 将历史会话日志目录打包为 zip，避免松散文件夹堆积
+        try:
+            self._archive_old_sessions(base_log_dir, current_dir=self.log_dir)
+        except Exception:
+            # 打包失败不影响主流程
+            pass
     
     def _setup_root_logger(self) -> None:
         """配置根日志器"""
@@ -171,11 +179,40 @@ class Logger:
             filename=log_file,
             maxBytes=max_bytes,
             backupCount=backup_count,
-            encoding='utf-8'
+            encoding='utf-8',
+            delay=True  # 延迟创建物理日志文件，避免生成空文件
         )
         
         file_handler.setFormatter(self._get_formatter('file'))
         logger.addHandler(file_handler)
+
+    def _archive_old_sessions(self, base_dir: Path, current_dir: Path) -> None:
+        """将非当前会话的历史日志目录打包为 zip 并删除原目录"""
+        for entry in base_dir.iterdir():
+            # 跳过当前目录、链接、文本标记文件
+            if entry == current_dir or entry.name == "latest" or entry.name.endswith('.txt'):
+                continue
+            # 仅处理时间戳格式的目录
+            if entry.is_dir():
+                try:
+                    datetime.strptime(entry.name, "%Y-%m-%d_%H-%M-%S")
+                except ValueError:
+                    continue
+                # 目标 zip 路径
+                zip_path = base_dir / f"{entry.name}.zip"
+                if not zip_path.exists():
+                    # 创建 zip 压缩包（保持目录名作为 zip 内根目录）
+                    shutil.make_archive(
+                        base_name=str(base_dir / entry.name),
+                        format='zip',
+                        root_dir=str(base_dir),
+                        base_dir=entry.name,
+                    )
+                # 删除原始目录
+                try:
+                    shutil.rmtree(entry)
+                except Exception:
+                    pass
     
     def get_logger(self, name: str) -> logging.Logger:
         """
@@ -289,7 +326,7 @@ class Logger:
         Returns:
             日志文件路径列表
         """
-        log_files = []
+        log_files: List[str] = []
         
         # 当前日志目录的文件
         if self.log_dir and self.log_dir.exists():
@@ -299,19 +336,15 @@ class Logger:
         if include_history and self.log_dir:
             base_dir = self.log_dir.parent
             if base_dir.exists():
-                # 查找所有日期格式的子目录
-                for subdir in base_dir.iterdir():
-                    if (subdir.is_dir() and 
-                        subdir != self.log_dir and 
-                        subdir.name != "latest" and
-                        not subdir.name.endswith('.txt')):
-                        # 检查是否是时间戳格式的目录
-                        try:
-                            datetime.strptime(subdir.name, "%Y-%m-%d_%H-%M-%S")
-                            log_files.extend([str(f) for f in subdir.glob('*.log*')])
-                        except ValueError:
-                            # 不是时间戳格式的目录，跳过
-                            continue
+                # 附加历史 zip 包
+                for zip_file in base_dir.glob('*.zip'):
+                    # 名称符合历史会话时间戳
+                    name = zip_file.stem
+                    try:
+                        datetime.strptime(name, "%Y-%m-%d_%H-%M-%S")
+                        log_files.append(str(zip_file))
+                    except ValueError:
+                        continue
         
         return sorted(log_files)
     
@@ -332,29 +365,31 @@ class Logger:
         
         current_time = datetime.now()
         
-        # 清理历史日志文件夹
-        for subdir in base_dir.iterdir():
-            if (subdir.is_dir() and 
-                subdir != self.log_dir and 
-                subdir.name != "latest" and
-                not subdir.name.endswith('.txt')):
-                
-                try:
-                    # 检查是否是时间戳格式的目录
-                    dir_time = datetime.strptime(subdir.name, "%Y-%m-%d_%H-%M-%S")
+        # 清理历史 zip 包与遗留目录
+        for entry in base_dir.iterdir():
+            # 跳过当前会话目录与标记文件
+            if entry == self.log_dir or entry.name == 'latest' or entry.name.endswith('.txt'):
+                continue
+            try:
+                if entry.is_file() and entry.suffix.lower() == '.zip':
+                    # 名称形如 2025-01-01_12-00-00.zip
+                    session_name = entry.stem
+                    dir_time = datetime.strptime(session_name, "%Y-%m-%d_%H-%M-%S")
                     days_diff = (current_time - dir_time).days
-                    
-                    if days_diff > keep_days:
-                        # 删除整个历史日志目录
-                        import shutil
-                        shutil.rmtree(subdir)
-                        print(f"已删除历史日志目录: {subdir.name}")
-                        
-                except ValueError:
-                    # 不是时间戳格式的目录，跳过
-                    continue
-                except Exception as e:
-                    print(f"删除日志目录失败 {subdir.name}: {e}")
+                    if keep_days == 0 or days_diff > keep_days:
+                        entry.unlink()
+                        print(f"已删除历史日志压缩包: {entry.name}")
+                elif entry.is_dir():
+                    # 遗留未压缩历史目录
+                    dir_time = datetime.strptime(entry.name, "%Y-%m-%d_%H-%M-%S")
+                    days_diff = (current_time - dir_time).days
+                    if keep_days == 0 or days_diff > keep_days:
+                        shutil.rmtree(entry)
+                        print(f"已删除历史日志目录: {entry.name}")
+            except ValueError:
+                continue
+            except Exception as e:
+                print(f"删除历史日志失败 {entry.name}: {e}")
         
         # 清理当前日志目录
         if not keep_current and self.log_dir.exists():

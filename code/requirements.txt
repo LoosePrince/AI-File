@@ -1,38 +1,39 @@
-# 文脉通 (DocStream Navigator) 项目依赖
+# ??? (DocStream Navigator) ????
 
-# 核心框架
-pywebview>=4.0.0                 # 现代化桌面应用界面框架
-openai>=1.40.0                   # 统一的 AI API 调用接口，支持最新功能
-httpx>=0.24.0                    # 异步HTTP客户端，OpenAI库的依赖
-requests>=2.28.0                 # HTTP请求库
+# ????
+pywebview>=4.0.0                 # ???????????
+openai>=1.40.0                   # ??? AI API ???????????
+# OpenAI 1.x 依赖 httpx，但部分版本与 proxies 传参不兼容，这里固定到 <0.28
+httpx>=0.24.0,<0.28.0           # ??HTTP????OpenAI????
+requests>=2.28.0                 # HTTP???
 
-# 图片处理
-Pillow>=9.0.0                    # 图片处理库，用于EXIF数据提取和图像分析
+# ????
+Pillow>=9.0.0                    # ????????EXIF?????????
 
-# 文档处理
-python-docx>=0.8.11              # Word文档处理
-openpyxl>=3.0.9                  # Excel文件处理
-pypdf>=3.0.0                     # PDF文件处理
+# ????
+python-docx>=0.8.11              # Word????
+openpyxl>=3.0.9                  # Excel????
+pypdf>=3.0.0                     # PDF????
 
-# 视频/音频处理
-ffmpeg-python>=0.2.0             # 视频/音频文件信息提取
+# ??/????
+ffmpeg-python>=0.2.0             # ??/????????
 
-# 压缩文件处理
-rarfile>=4.0                     # RAR文件处理
-py7zr>=0.20.0                    # 7Z文件处理
+# ??????
+rarfile>=4.0                     # RAR????
+py7zr>=0.20.0                    # 7Z????
 
-# Web界面相关
-bottle>=0.12.23                  # 可选的轻量级Web框架
+# Web????
+bottle>=0.12.23                  # ??????Web??
 
-# 系统相关
-psutil>=5.8.0                    # 系统信息获取
-watchdog>=2.1.0                  # 文件系统监控
+# ????
+psutil>=5.8.0                    # ??????
+watchdog>=2.1.0                  # ??????
 
-# 开发和测试工具
-pytest>=7.0.0                   # 测试框架
-pytest-cov>=4.0.0               # 测试覆盖率
-black>=22.0.0                   # 代码格式化
-flake8>=5.0.0                   # 代码检查
+# ???????
+pytest>=7.0.0                   # ????
+pytest-cov>=4.0.0               # ?????
+black>=22.0.0                   # ?????
+flake8>=5.0.0                   # ????
 
-# 打包工具（可选）
-pyinstaller>=5.13.0     # 可执行文件打包
+# ????????
+pyinstaller>=5.13.0     # ???????
