@@ -13,6 +13,7 @@ config.ini
 
 # 忽略日志文件
 log
+logs
 *.log
 
 # 忽略工作文件
@@ -27,3 +28,4 @@ file_analysis_cache.json
 img
 out
 test_file
+old
