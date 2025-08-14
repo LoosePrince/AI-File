@@ -13,6 +13,8 @@ config.ini
 
 # 忽略日志文件
 log
+logs
+dist
 *.log
 
 # 忽略工作文件
