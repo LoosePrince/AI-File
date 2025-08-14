@@ -1045,21 +1045,38 @@ class DocStreamApp {
             this.showNotification('请先选择要重命名的文件', 'warning');
             return;
         }
-        
-        this.showNotification('正在批量生成AI建议...', 'info');
-        
-        // 这里可以循环为每个文件生成AI建议
-        // 为了演示，我们只是给每个文件设置一个示例名称
-        this.renameFiles.forEach((file, index) => {
-            if (!file.newName) {
-                const fileName = file.name || file.path.split('/').pop().split('\\').pop();
-                const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
-                file.newName = `${nameWithoutExt}_AI重命名`;
+        try {
+            this.showNotification('正在批量生成AI建议...', 'info');
+            const indices = this.renameFiles.map((_, i) => i);
+            if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.generate_ai_filenames_batch === 'function') {
+                const result = await window.pywebview.api.generate_ai_filenames_batch(indices);
+                if (result && result.success && result.results) {
+                    for (const [idxStr, payload] of Object.entries(result.results)) {
+                        const idx = parseInt(idxStr);
+                        const names = (payload && payload.suggested_names) || [];
+                        if (names.length > 0) {
+                            this.renameFiles[idx].newName = names[0];
+                        }
+                    }
+                    this.displayRenameFiles();
+                    this.showNotification('批量AI建议生成完成', 'success');
+                } else {
+                    this.showNotification(result?.message || '批量AI建议生成失败', 'error');
+                }
+            } else {
+                // 回退：前端本地生成简易建议
+                this.renameFiles.forEach((file, index) => {
+                    const fileName = file.name || file.path.split('/').pop().split('\\').pop();
+                    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+                    file.newName = nameWithoutExt;
+                });
+                this.displayRenameFiles();
+                this.showNotification('已生成本地建议（简化）', 'warning');
             }
-        });
-        
-        this.displayRenameFiles();
-        this.showNotification('批量AI建议生成完成', 'success');
+        } catch (e) {
+            console.error('批量AI建议失败', e);
+            this.showNotification('批量AI建议失败', 'error');
+        }
     }
     
     // 应用全部重命名

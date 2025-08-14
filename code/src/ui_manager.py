@@ -14,6 +14,7 @@ from .progress_manager import (
     get_progress_manager, initialize_progress_manager, 
     TaskStatus, TaskPriority, FileProcessingHandler
 )
+from .renaming_engine import RenamingEngine
 
 class UIManager:
     """UI管理器，负责创建和管理用户界面"""
@@ -59,6 +60,12 @@ class UIManager:
         self._webview_ready: bool = False
         
         self.logger.info("UI管理器初始化完成")
+        # 重命名引擎
+        try:
+            self.renaming_engine = RenamingEngine(self.config_manager)
+        except Exception as e:
+            self.logger.warning(f"重命名引擎初始化失败: {e}")
+            self.renaming_engine = None
     
     def create_window(self) -> None:
         """创建主窗口"""
@@ -97,6 +104,7 @@ class UIManager:
                 preview_file=self.preview_file,
                 get_rename_dialog_html=self.get_rename_dialog_html,
                 generate_ai_filename_suggestions=self.generate_ai_filename_suggestions,
+                generate_ai_filenames_batch=self.generate_ai_filenames_batch,
                 rename_file=self.rename_file,
                 get_log_files=self.get_log_files,
                 clear_logs=self.clear_logs,
@@ -1110,21 +1118,22 @@ class UIManager:
             
             file_info = self.selected_files[file_index]
             file_path = file_info['path']
-            
-            # 这里可以集成AI客户端来生成建议
-            # 目前返回一些示例建议
-            base_name = Path(file_path).stem
-            suggestions = [
-                f"{base_name}_智能重命名1",
-                f"{base_name}_智能重命名2", 
-                f"{base_name}_智能重命名3"
-            ]
-            
-            self.logger.info(f"为文件 {file_info['name']} 生成AI建议")
-            
+            # 使用重命名引擎
+            if self.renaming_engine is None:
+                base_name = Path(file_path).stem
+                suggestions = [base_name]
+                return {'success': True, 'suggestions': suggestions, 'file_info': file_info}
+
+            result = self.renaming_engine.suggest_names_for_file(file_path)
+            suggestions = result.get('suggested_names') or []
+            if not suggestions:
+                suggestions = [Path(file_path).stem]
+            self.logger.info(f"为文件 {file_info['name']} 生成AI建议: {len(suggestions)} 条")
             return {
                 'success': True,
                 'suggestions': suggestions,
+                'best': result.get('best_choice'),
+                'reasoning': result.get('reasoning'),
                 'file_info': file_info
             }
             
@@ -1135,6 +1144,25 @@ class UIManager:
                 'success': False,
                 'message': error_msg
             }
+
+    def generate_ai_filenames_batch(self, file_indices: List[int]):
+        """批量为所选文件生成 AI 建议（索引数组）。"""
+        try:
+            indices = [i for i in file_indices if 0 <= i < len(self.selected_files)]
+            paths = [self.selected_files[i]['path'] for i in indices]
+            if self.renaming_engine is None:
+                # 回退：仅返回原名 stem
+                return {
+                    'success': True,
+                    'results': {i: {'suggested_names': [Path(self.selected_files[i]['path']).stem]} for i in indices}
+                }
+            batch = self.renaming_engine.suggest_names_batch(paths)
+            # 将 0..n 的结果键映射回原 indices
+            mapped = {idx: batch[i] for i, idx in enumerate(indices)}
+            return {'success': True, 'results': mapped}
+        except Exception as e:
+            self.logger.error(f"批量AI建议失败: {e}", exc_info=True)
+            return {'success': False, 'message': str(e)}
     
     def rename_file(self, file_index: int, new_name: str):
         """重命名文件"""

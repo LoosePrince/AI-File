@@ -359,7 +359,7 @@ html, body {
 }
 
 .file-list {
-    max-height: 200px;
+    max-height: 60vh;
     overflow-y: auto;
     margin-bottom: 16px;
 }
@@ -909,8 +909,8 @@ html, body {
 
 /* 分类完成的文件项样式 */
 .file-list .file-item.classified {
-    background: rgba(103, 194, 58, 0.05);
-    border-left: 3px solid var(--success);
+    background: var(--bg-secondary);
+    border-left: 2px solid var(--accent-primary);
 }
 
 .file-list .file-item.classified:hover {
@@ -960,17 +960,17 @@ html, body {
     margin-top: 8px;
     padding: 6px 10px;
     background: var(--bg-tertiary);
-    border: 1px solid var(--success);
+    border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
     font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .new-path-label {
-    color: var(--success);
-    font-weight: 500;
+    color: var(--text-secondary);
+    font-weight: 400;
     white-space: nowrap;
 }
 
@@ -995,6 +995,57 @@ html, body {
     padding: 4px 10px;
     font-size: 12px;
     white-space: nowrap;
+}
+
+/* 非悬停默认可见样式（不覆盖主色/危险/描边按钮） */
+.file-actions .btn:not(.btn-primary):not(.btn-danger):not(.btn-outline),
+.rename-item-actions .btn:not(.btn-primary):not(.btn-danger):not(.btn-outline) {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+}
+
+/* 文件项操作按钮兜底样式（即使未带 .btn 类） */
+.file-actions button {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border: 1px solid var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+/* 语义配色：预览/重命名/移除（基于 onclick 识别） */
+.file-actions button[onclick*="previewFile"] {
+    background: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-secondary);
+}
+.file-actions button[onclick*="previewFile"]:hover {
+    background: var(--bg-accent);
+    color: var(--text-primary);
+}
+
+.file-actions button[onclick*="renameFile"] {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.file-actions button[onclick*="renameFile"]:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.file-actions button[onclick*="removeFile"] {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+}
+.file-actions button[onclick*="removeFile"]:hover {
+    background: #dc3545;
+    border-color: #dc3545;
 }
 
 .btn-preview {
@@ -1247,6 +1298,41 @@ html, body {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 20px;
+}
+
+/* 对话框按钮的默认可见样式（不覆盖主色/危险/描边按钮） */
+.dialog-actions .btn:not(.btn-primary):not(.btn-danger):not(.btn-outline) {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+}
+
+/* 重命名/路径编辑对话框按钮兜底样式 */
+.dialog-actions button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border: 1px solid var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.dialog-actions button[onclick*="closeRenameDialog"],
+.dialog-actions button[onclick*="取消" i] {
+    background: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+}
+.dialog-actions button[onclick*="confirmRename"],
+.dialog-actions button[onclick*="confirmEditTargetPath"],
+.dialog-actions button[onclick*="window.app.confirmEditTargetPath"] {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.dialog-actions button:hover {
+    filter: brightness(1.05);
 }
 
 /* 文件预览 */
